@@ -41,7 +41,7 @@
 
 2)、该工具类只提供运行时权限申请，提供7.0以上文件访问权限，无需再额外添加
 
-3)、9.0以上，部分机型使用DownloadManager可能会提示文件路径无效，请使用另外两种下载方式，设置Params.useDownloadManager(false)
+3)、9.0的部分机型使用DownloadManager可能会提示文件路径无效，请使用另外两种下载方式，设置Params.useDownloadManager(false)
 
 ### 示例：
 
