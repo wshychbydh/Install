@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.eye.cool.install">
+
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+  <application android:allowBackup="true">
+
+    <activity android:name=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <activity
+      android:name=".ui.ProgressActivity"
+      android:configChanges="keyboardHidden|orientation|screenSize"
+      android:exported="false"
+      android:launchMode="singleInstance"
+      android:screenOrientation="unspecified"
+      android:theme="@style/ProgressDialog" />
+
+    <activity
+      android:name=".ui.InstallPermissionActivity"
+      android:configChanges="keyboardHidden|orientation|screenSize"
+      android:exported="false"
+      android:launchMode="singleInstance"
+      android:screenOrientation="unspecified"
+      android:theme="@style/InstallPermissionTranslate" />
+
+    <receiver
+      android:name=".support.DownloadReceiver"
+      android:enabled="true"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+        <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
+      </intent-filter>
+    </receiver>
+
+    <provider
+      android:name=".support.ApkFileProvider"
+      android:authorities="${applicationId}.apk.FileProvider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/apk_file_paths" />
+    </provider>
+    <service
+      android:name=".support.DownloadService"
+      android:exported="false" />
+  </application>
+
+</manifest>
