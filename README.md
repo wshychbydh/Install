@@ -65,7 +65,7 @@
         .build()
 
     Params.Builder()
-        .setDownloadParams(DownloadParams)            //(必须) 构建下载参数
+        .setDownloadParams(DownloadParams)            //(必填) 构建下载参数
         .setDialogParams(DialogParams)                //(可选) 构建进度框参数
         .setAuthority(String)                         //(可选) 自定下载路径时，需设置临时授权路径，默认已授权external/Download
         .enableLog(Boolean)                           //(可选) 开启日志打印，默认false
@@ -88,3 +88,5 @@
 
 
 #### 联系方式 wshychbydh@gmail.com
+
+[![](https://jitpack.io/v/wshychbydh/install.svg)](https://jitpack.io/#wshychbydh/install)
