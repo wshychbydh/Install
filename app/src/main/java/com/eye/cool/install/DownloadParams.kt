@@ -40,10 +40,10 @@ class DownloadParams private constructor() {
     }
 
     /**
-     *@param dirType the directory type to pass to {@link Context#getExternalPubDir(String)}
+     *@param dirType the directory type to pass to {@link Context#getExternalPubDir(String)} or {@link Context#getExternalFilesDir(String)}
      *@param subPath the path within the external directory, including the destination filename
      */
-    fun setDownloadExternalPubDir(dirType: String, subPath: String): Builder {
+    fun setDownloadExternalDir(dirType: String, subPath: String): Builder {
       params.downloadDirType = dirType
       params.downloadSubPath = subPath
       return this

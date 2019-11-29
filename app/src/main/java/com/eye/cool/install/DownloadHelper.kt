@@ -114,9 +114,9 @@ class DownloadHelper {
     if (params.useDownloadManager) {
       try {
         var fileDir: File? = null
-        var pubDir: File? = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        var pubDir: File? = Environment.getExternalStoragePublicDirectory(params.downloadParams.downloadDirType)
         if (pubDir == null || (!pubDir.exists() && !pubDir.mkdirs())) {
-          fileDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+          fileDir = context.getExternalFilesDir(params.downloadParams.downloadDirType)
           if (fileDir == null || (!fileDir.exists() && !fileDir.mkdirs())) {
             "The file directory(${pubDir?.absolutePath} or ${fileDir?.absolutePath}) are unavailable or inaccessible"
             return
@@ -131,11 +131,10 @@ class DownloadHelper {
           val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
           val request = DownloadManager.Request(Uri.parse(params.downloadParams.downloadUrl))
           if (fileDir == null) {
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, params.downloadParams.downloadSubPath)
+            request.setDestinationInExternalPublicDir(params.downloadParams.downloadDirType, params.downloadParams.downloadSubPath)
           } else {
-            request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, params.downloadParams.downloadSubPath)
+            request.setDestinationInExternalFilesDir(context, params.downloadParams.downloadDirType, params.downloadParams.downloadSubPath)
           }
-          request.setDestinationInExternalPublicDir(params.downloadParams.downloadDirType, params.downloadParams.downloadSubPath)
           request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
           val downloadId = manager.enqueue(request)
           context.getSharedPreferences(DownloadReceiver.DOWNLOAD, Context.MODE_PRIVATE).edit().putLong(DownloadReceiver.DOWNLOAD_ID, downloadId).commit()
