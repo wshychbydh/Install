@@ -7,6 +7,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.webkit.URLUtil
+import com.eye.cool.install.params.DownloadParams
+import com.eye.cool.install.params.Params
+import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.support.DownloadReceiver
 import com.eye.cool.install.support.DownloadService
 import com.eye.cool.install.ui.InstallPermissionActivity
@@ -31,9 +34,9 @@ class DownloadHelper {
     this.params.downloadParams = downloadParams
   }
 
-  constructor(context: Context, dialogParams: DialogParams) {
+  constructor(context: Context, progressParams: ProgressParams) {
     this.context = context
-    this.params.dialogParams = dialogParams
+    this.params.progressParams = progressParams
   }
 
   constructor(context: Context, params: Params) {
@@ -64,8 +67,8 @@ class DownloadHelper {
           return false
         }
       } else {
-        val dir = File(params.downloadParams.downloadPath!!.substring(0, params.downloadParams.downloadPath!!.lastIndexOf("/")))
-        if (!dir.exists() && !dir.mkdirs()) {
+        val dir = File(params.downloadParams.downloadPath!!).parentFile
+        if (dir == null || (!dir.exists() && !dir.mkdirs()) || !dir.canRead() || !dir.canWrite()) {
           DownloadLog.logE("The file directory(${dir.absolutePath}) is unavailable or inaccessible")
           return false
         }
@@ -80,8 +83,8 @@ class DownloadHelper {
   private fun startOnPermissionGranted() {
     val target = context.applicationInfo.targetSdkVersion
     if (target >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      InstallPermissionActivity.requestPermission(context) {
-        if (it) {
+      checkPermission { result ->
+        if (result) {
           if (params.forceUpdate) {
             if (DownloadUtil.checkApkDownload(context, params.downloadParams)) {
               DownloadLog.logI("Apk is download!")
@@ -97,11 +100,7 @@ class DownloadHelper {
         }
       }
     } else {
-      val file = File(params.downloadParams.downloadPath ?: "")
-      if (!file.canWrite() || !file.canRead()) {
-        DownloadLog.logE("Download failed, permission denied.")
-        return
-      }
+      //UseDownloadManager check it later, download path's accessibility is checked
       if (params.forceUpdate) {
         ProgressActivity.launch(context, params)
       } else {
@@ -110,14 +109,56 @@ class DownloadHelper {
     }
   }
 
+  private fun checkPermission(invoker: (Boolean) -> Unit) {
+
+    val permissions = arrayOf(
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+
+    if (params.permissionInvoker == null) {
+      InstallPermissionActivity.requestPermission(context, permissions) {
+        if (it) {
+          checkInstallPermission(invoker)
+        } else {
+          invoker.invoke(false)
+        }
+      }
+    } else {
+      params.permissionInvoker!!.request(permissions) {
+        if (it) {
+          checkInstallPermission(invoker)
+        } else {
+          invoker.invoke(false)
+        }
+      }
+    }
+  }
+
+  private fun checkInstallPermission(invoker: (Boolean) -> Unit) {
+    if (params.settingInvoker != null
+        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        && !context.packageManager.canRequestPackageInstalls()) {
+      params.settingInvoker!!.request {
+        if (it) {
+          invoker.invoke(true)
+        } else {
+          DownloadLog.logE("Download Failed, missing installation unknown package permissions.")
+        }
+      }
+    } else {
+      invoker.invoke(true)
+    }
+  }
+
   private fun download(context: Context, params: Params) {
     if (params.useDownloadManager) {
       try {
         var fileDir: File? = null
         var pubDir: File? = Environment.getExternalStoragePublicDirectory(params.downloadParams.downloadDirType)
-        if (pubDir == null || (!pubDir.exists() && !pubDir.mkdirs())) {
+        if (pubDir == null || (!pubDir.exists() && !pubDir.mkdirs()) || !pubDir.canRead() || !pubDir.canWrite()) {
           fileDir = context.getExternalFilesDir(params.downloadParams.downloadDirType)
-          if (fileDir == null || (!fileDir.exists() && !fileDir.mkdirs())) {
+          if (fileDir == null || (!fileDir.exists() && !fileDir.mkdirs()) || !fileDir.canRead() || !fileDir.canWrite()) {
             "The file directory(${pubDir?.absolutePath} or ${fileDir?.absolutePath}) are unavailable or inaccessible"
             return
           }
@@ -157,10 +198,9 @@ class DownloadHelper {
   }
 
   private fun composeDownloadPath(): String {
-    val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.absolutePath
-        ?: Environment.getDownloadCacheDirectory()?.absolutePath
-    val dir = File(path)
-    if (!dir.exists() && !dir.mkdirs()) {
+    val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        ?: Environment.getDownloadCacheDirectory()
+    if (dir == null || (!dir.exists() && !dir.mkdirs()) || !dir.canRead() || !dir.canWrite()) {
       throw IllegalStateException("The file directory(${dir.absolutePath}) is unavailable or inaccessible")
     }
     return File(dir, composeDownloadSubPath()).absolutePath

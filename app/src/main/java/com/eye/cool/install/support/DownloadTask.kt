@@ -1,7 +1,6 @@
 package com.eye.cool.install.support
 
 import android.os.AsyncTask
-import com.eye.cool.install.IProgress
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream

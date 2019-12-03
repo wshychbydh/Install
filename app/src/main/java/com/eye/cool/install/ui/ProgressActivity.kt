@@ -16,8 +16,8 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.eye.cool.install.IProgress
-import com.eye.cool.install.Params
+import com.eye.cool.install.support.IProgress
+import com.eye.cool.install.params.Params
 import com.eye.cool.install.R
 import com.eye.cool.install.support.ApkDownloader
 import kotlinx.android.synthetic.main.dialog_download_progress.view.*
@@ -41,7 +41,7 @@ internal class ProgressActivity : AppCompatActivity() {
 
     invasionStatusBar(this)
 
-    val params = updateParams!!.dialogParams
+    val params = updateParams!!.progressParams
 
     setFinishOnTouchOutside(params.cancelOnTouchOutside)
 
@@ -82,7 +82,7 @@ internal class ProgressActivity : AppCompatActivity() {
   }
 
   override fun onBackPressed() {
-    if (updateParams!!.dialogParams.cancelAble) {
+    if (updateParams!!.progressParams.cancelAble) {
       super.onBackPressed()
     }
   }

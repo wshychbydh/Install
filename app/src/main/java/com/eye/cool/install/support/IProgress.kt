@@ -1,4 +1,4 @@
-package com.eye.cool.install
+package com.eye.cool.install.support
 
 import android.view.View
 

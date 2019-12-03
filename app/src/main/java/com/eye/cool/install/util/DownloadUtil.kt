@@ -4,7 +4,7 @@ import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import com.eye.cool.install.DownloadParams
+import com.eye.cool.install.params.DownloadParams
 import java.io.File
 
 /**

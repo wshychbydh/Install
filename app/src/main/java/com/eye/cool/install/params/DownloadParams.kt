@@ -1,4 +1,4 @@
-package com.eye.cool.install
+package com.eye.cool.install.params
 
 import android.os.Environment
 
@@ -21,8 +21,8 @@ class DownloadParams private constructor() {
     /**
      * If you don't want to download the same apk twice, set the version of the apk to be downloaded
      *
-     * @param versionCode the versionCode of apk
-     * @param versionName the versionName of apk
+     * @param versionCode The versionCode of apk
+     * @param versionName The versionName of apk
      */
     fun setVersion(versionCode: Int, versionName: String): Builder {
       params.versionCode = versionCode
@@ -31,8 +31,9 @@ class DownloadParams private constructor() {
     }
 
     /**
-     * The downloadUrl of the apk to be downloaded
-     * @param downloadUrl the url must be valid , check by {@link URLUtil.isValidUrl()}
+     * The download url of the apk to be downloaded
+     *
+     * @param downloadUrl The url must be valid , check by {@link URLUtil.isValidUrl()}
      */
     fun setDownloadUrl(downloadUrl: String): Builder {
       params.downloadUrl = downloadUrl
@@ -40,8 +41,10 @@ class DownloadParams private constructor() {
     }
 
     /**
-     *@param dirType the directory type to pass to {@link Context#getExternalPubDir(String)} or {@link Context#getExternalFilesDir(String)}
-     *@param subPath the path within the external directory, including the destination filename
+     * The download dir where the apk will be download to
+     *
+     *@param dirType The directory type to pass to {@link Context#getExternalPubDir(String)} or {@link Context#getExternalFilesDir(String)}
+     *@param subPath The path within the external directory, including the destination filename
      */
     fun setDownloadExternalDir(dirType: String, subPath: String): Builder {
       params.downloadDirType = dirType
@@ -50,8 +53,9 @@ class DownloadParams private constructor() {
     }
 
     /**
-     * Where the apk will be downloaded
-     * @param downloadPath default in external or file cache {download/${app_name}.apk}
+     * The download path where the apk will be download to
+     *
+     * @param downloadPath Default in external or file cache {download/${app_name}.apk}
      * {@link getExternalStoragePublicDirectory()} or {@link getExternalFilesDir()}
      */
     fun setDownloadPath(downloadPath: String): Builder {

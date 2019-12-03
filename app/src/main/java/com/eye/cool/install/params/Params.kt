@@ -1,4 +1,9 @@
-package com.eye.cool.install
+package com.eye.cool.install.params
+
+import android.annotation.TargetApi
+import android.os.Build
+import com.eye.cool.install.support.PermissionInvoker
+import com.eye.cool.install.support.SettingInvoker
 
 /**
  *Created by ycb on 2019/11/28 0028
@@ -9,8 +14,10 @@ class Params private constructor() {
   internal var authority: String? = null
   internal var useDownloadManager: Boolean = true
   internal var downloadParams: DownloadParams = DownloadParams.Builder().build()
-  internal var dialogParams: DialogParams = DialogParams.Builder().build()
+  internal var progressParams: ProgressParams = ProgressParams.Builder().build()
   internal var forceUpdate: Boolean = false
+  internal var permissionInvoker: PermissionInvoker? = null
+  internal var settingInvoker: SettingInvoker? = null
 
   class Builder {
 
@@ -18,15 +25,17 @@ class Params private constructor() {
 
     /**
      * The download progress dialog related parameter settings
-     * @param dialogParams
+     *
+     * @param progressParams
      */
-    fun setDialogParams(dialogParams: DialogParams): Builder {
-      params.dialogParams = dialogParams
+    fun setProgressParams(progressParams: ProgressParams): Builder {
+      params.progressParams = progressParams
       return this
     }
 
     /**
      * The download related parameter settings
+     *
      * @param downloadParams
      */
     fun setDownloadParams(downloadParams: DownloadParams): Builder {
@@ -36,6 +45,7 @@ class Params private constructor() {
 
     /**
      * Enable log, then you can see some download details
+     *
      * @param enable default false
      */
     fun enableLog(enable: Boolean): Builder {
@@ -66,10 +76,33 @@ class Params private constructor() {
 
     /**
      * Use DownloadManager to download, but sometimes there are problems, then you can set it to false
+     *
      * @param useDownloadManager default true
      */
     fun useDownloadManager(useDownloadManager: Boolean): Builder {
       params.useDownloadManager = useDownloadManager
+      return this
+    }
+
+    /**
+     * Callback the request result after requesting storage permission
+     *
+     * @param permissionInvoker Permission invoker callback after to request storage permissions
+     */
+    @TargetApi(Build.VERSION_CODES.M)
+    fun setPermissionInvoker(permissionInvoker: PermissionInvoker?): Builder {
+      params.permissionInvoker = permissionInvoker
+      return this
+    }
+
+    /**
+     * Callback the request result after requesting installation permission
+     *
+     * @param settingInvoker Permission invoker callback after to request installation permissions
+     */
+    @TargetApi(Build.VERSION_CODES.O)
+    fun setSettingInvoker(settingInvoker: SettingInvoker?): Builder {
+      params.settingInvoker = settingInvoker
       return this
     }
 

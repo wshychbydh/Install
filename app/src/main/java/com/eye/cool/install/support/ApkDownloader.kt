@@ -2,7 +2,7 @@ package com.eye.cool.install.support
 
 import android.content.Context
 import android.os.AsyncTask
-import com.eye.cool.install.Params
+import com.eye.cool.install.params.Params
 import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
 import java.io.File
@@ -43,13 +43,13 @@ internal class ApkDownloader(
 
     override fun onProgressUpdate(vararg values: Float?) {
       val progress = values[0]!!
-      params.dialogParams.progress!!.onProgress(progress)
+      params.progressParams.progress!!.onProgress(progress)
     }
 
     override fun onPostExecute(result: Unit?) {
       if (!isCancelled) {
         val apkPath = params.downloadParams.downloadPath!!
-        if (!params.dialogParams.progress!!.onFinished(apkPath)) {
+        if (!params.progressParams.progress!!.onFinished(apkPath)) {
           InstallUtil.installApk(context, apkPath)
         }
       }

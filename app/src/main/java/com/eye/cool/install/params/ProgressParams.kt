@@ -1,12 +1,13 @@
-package com.eye.cool.install
+package com.eye.cool.install.params
 
 import android.graphics.drawable.Drawable
 import android.view.Gravity
+import com.eye.cool.install.support.IProgress
 
 /**
  *Created by ycb on 2019/11/28 0028
  */
-class DialogParams private constructor() {
+class ProgressParams private constructor() {
   internal var progress: IProgress? = null
   internal var cancelAble: Boolean = false
   internal var cancelOnTouchOutside: Boolean = false
@@ -21,7 +22,7 @@ class DialogParams private constructor() {
 
   class Builder {
 
-    private val params = DialogParams()
+    private val params = ProgressParams()
 
     /**
      * Placement of window within the screen as per {@link Gravity}.  Both
@@ -48,7 +49,7 @@ class DialogParams private constructor() {
      *
      * @param progress
      */
-    fun progrees(progress: IProgress): Builder {
+    fun progress(progress: IProgress): Builder {
       params.progress = progress
       return this
     }
@@ -121,14 +122,14 @@ class DialogParams private constructor() {
 
     /**
      * The background of the progress dialog
-     * @param drawable default colorPrimary and corner 8dp
+     * @param drawable Default colorPrimary and corner 8dp
      */
     fun backgroundDrawable(drawable: Drawable): Builder {
       this.params.backgroundDrawable = drawable
       return this
     }
 
-    fun build(): DialogParams {
+    fun build(): ProgressParams {
       return params
     }
   }

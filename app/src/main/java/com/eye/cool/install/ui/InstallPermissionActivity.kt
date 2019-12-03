@@ -38,7 +38,8 @@ internal class InstallPermissionActivity : Activity() {
     if (sRequestPermissionListener == null) {
       showInstallSettingDialog()
     } else {
-      requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_CODE)
+      val permissions = intent.getStringArrayExtra(REQUEST_PERMISSIONS)
+      requestPermissions(permissions, REQUEST_PERMISSION_CODE)
     }
   }
 
@@ -91,6 +92,7 @@ internal class InstallPermissionActivity : Activity() {
 
     private const val REQUEST_PERMISSION_CODE = 3001
     private const val REQUEST_INSTALL_PACKAGES_CODE = 4001
+    private const val REQUEST_PERMISSIONS = "request_permissions"
 
     private var sRequestPermissionListener: ((Boolean) -> Unit)? = null
     private var sRequestInstallPackageListener: ((Boolean) -> Unit)? = null
@@ -103,10 +105,11 @@ internal class InstallPermissionActivity : Activity() {
       context.startActivity(intent)
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    fun requestPermission(context: Context, callback: ((Boolean) -> Unit)? = null) {
+    @TargetApi(Build.VERSION_CODES.M)
+    fun requestPermission(context: Context, permissions: Array<String>, callback: ((Boolean) -> Unit)? = null) {
       sRequestPermissionListener = callback
       val intent = Intent(context, InstallPermissionActivity::class.java)
+      intent.putExtra(REQUEST_PERMISSIONS, permissions)
       intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
       context.startActivity(intent)
     }
