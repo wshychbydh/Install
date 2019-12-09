@@ -3,8 +3,6 @@ package com.eye.cool.install.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -16,10 +14,10 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.eye.cool.install.support.IProgress
-import com.eye.cool.install.params.Params
 import com.eye.cool.install.R
+import com.eye.cool.install.params.Params
 import com.eye.cool.install.support.ApkDownloader
+import com.eye.cool.install.support.IProgress
 import kotlinx.android.synthetic.main.dialog_download_progress.view.*
 import kotlin.math.roundToInt
 
@@ -32,12 +30,6 @@ internal class ProgressActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    requestedOrientation = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-    } else {
-      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    }
 
     invasionStatusBar(this)
 

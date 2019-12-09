@@ -5,9 +5,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -28,12 +26,6 @@ internal class InstallPermissionActivity : Activity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     invasionStatusBar(this)
-
-    requestedOrientation = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-    } else {
-      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    }
 
     if (sRequestPermissionListener == null) {
       showInstallSettingDialog()
