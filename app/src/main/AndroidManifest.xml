@@ -11,18 +11,14 @@
 
     <activity
       android:name=".ui.ProgressActivity"
-      android:configChanges="keyboardHidden|orientation|screenSize"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:screenOrientation="unspecified"
       android:theme="@style/ProgressDialog" />
 
     <activity
       android:name=".ui.InstallPermissionActivity"
-      android:configChanges="keyboardHidden|orientation|screenSize"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:screenOrientation="unspecified"
       android:theme="@style/InstallPermissionTranslate" />
 
     <receiver
