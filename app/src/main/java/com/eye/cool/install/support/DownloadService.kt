@@ -25,12 +25,12 @@ internal class DownloadService : IntentService("download") {
   override fun onHandleIntent(intent: Intent?) {
     val url = intent?.getStringExtra(DOWNLOAD_URL) ?: return
     val path = intent?.getStringExtra(FILE_PATH) ?: return
-    DownloadLog.logI("Download by DownloadService...")
+    DownloadLog.logI("Download($url) by DownloadService...")
     GlobalScope.launch {
       withContext(Dispatchers.IO) {
         download(url, path)
         withContext(Dispatchers.Main) {
-          DownloadLog.logI("DownloadService download by Finished")
+          DownloadLog.logI("DownloadService download($path) Finished")
           InstallUtil.installApk(this@DownloadService, path)
         }
       }

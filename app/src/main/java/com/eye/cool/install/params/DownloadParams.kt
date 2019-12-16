@@ -53,7 +53,8 @@ class DownloadParams private constructor() {
     }
 
     /**
-     * The download path where the apk will be download to
+     * The download path where the apk will be download to.
+     * Make sure you have access to the path.
      *
      * @param downloadPath Default in external or file cache {download/${app_name}.apk}
      * {@link getExternalStoragePublicDirectory()} or {@link getExternalFilesDir()}

@@ -15,6 +15,7 @@ class Params private constructor() {
   internal var useDownloadManager: Boolean = true
   internal var downloadParams: DownloadParams = DownloadParams.Builder().build()
   internal var progressParams: ProgressParams = ProgressParams.Builder().build()
+  internal var promptParams: PromptParams? = null
   internal var forceUpdate: Boolean = false
   internal var permissionInvoker: PermissionInvoker? = null
   internal var settingInvoker: SettingInvoker? = null
@@ -103,6 +104,16 @@ class Params private constructor() {
     @TargetApi(Build.VERSION_CODES.O)
     fun setSettingInvoker(settingInvoker: SettingInvoker?): Builder {
       params.settingInvoker = settingInvoker
+      return this
+    }
+
+    /**
+     * The prompt related parameter settings
+     *
+     * @param promptParams
+     */
+    fun setPromptParams(promptParams: PromptParams): Builder {
+      params.promptParams = promptParams
       return this
     }
 

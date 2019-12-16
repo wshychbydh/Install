@@ -50,12 +50,12 @@ class DownloadHelper {
 
     if (!checkParams()) return
 
-    startOnPermissionGranted()
+    tryShowPrompt()
   }
 
   private fun checkParams(): Boolean {
     if (!URLUtil.isValidUrl(params.downloadParams.downloadUrl)) {
-      DownloadLog.logE("Download url is invalid.")
+      DownloadLog.logE("Download url(${params.downloadParams.downloadUrl}) is invalid..")
       return false
     }
     if (!params.useDownloadManager || params.forceUpdate) {
@@ -67,10 +67,16 @@ class DownloadHelper {
           return false
         }
       } else {
-        val dir = File(params.downloadParams.downloadPath!!).parentFile
-        if (dir == null || (!dir.exists() && !dir.mkdirs()) || !dir.canRead() || !dir.canWrite()) {
-          DownloadLog.logE("The file directory(${dir.absolutePath}) is unavailable or inaccessible")
+        var file = File(params.downloadParams.downloadPath!!)
+        if (file.isFile) {
+          file = file.parentFile
+        }
+        if (file == null || (!file.exists() && !file.mkdirs()) || !file.canRead() || !file.canWrite()) {
+          DownloadLog.logE("The file directory(${file.absolutePath}) is unavailable or inaccessible")
           return false
+        }
+        if (file.isDirectory) {
+          params.downloadParams.downloadPath = File(file, composeDownloadSubPath()).absolutePath
         }
       }
     }
@@ -151,6 +157,20 @@ class DownloadHelper {
     }
   }
 
+  private fun tryShowPrompt() {
+    if (params.promptParams?.isValid() == true) {
+      params.promptParams!!.apply {
+        prompt!!.show(context, title, content) {
+          if (it) {
+            startOnPermissionGranted()
+          }
+        }
+      }
+    } else {
+      startOnPermissionGranted()
+    }
+  }
+
   private fun download(context: Context, params: Params) {
     if (params.useDownloadManager) {
       try {
@@ -176,6 +196,7 @@ class DownloadHelper {
           } else {
             request.setDestinationInExternalFilesDir(context, params.downloadParams.downloadDirType, params.downloadParams.downloadSubPath)
           }
+
           request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
           val downloadId = manager.enqueue(request)
           context.getSharedPreferences(DownloadReceiver.DOWNLOAD, Context.MODE_PRIVATE).edit().putLong(DownloadReceiver.DOWNLOAD_ID, downloadId).commit()

@@ -10,9 +10,11 @@
 
 3、适配8.0以上安装包权限引导设置
 
-4、支持自定义权限请求和引导授权安装框
+4、支持自定义升级提示框
 
-5、提供3种下载apk方式（带进度条下载、后台下载、DownloadManager下载）
+5、支持自定义权限请求和引导授权安装框
+
+6、提供3种下载apk方式（带进度条下载、后台下载、DownloadManager下载）
 
 ### 使用方法：
 
@@ -29,7 +31,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.0.2'
+        implementation 'com.github.wshychbydh:install:1.0.3'
     }
 ```
 
@@ -51,14 +53,20 @@
 
 1、构建参数
 ```
-   DownloadParams.Builder()
+   val promptParams = PromptParams.Builder()           
+        .setTitle(title)                              //提示框标题
+        .setContent(content)                          //提示框内容
+        .setPrompt(prompt)                            //提示框
+        .build() 
+
+   val downloadParams = DownloadParams.Builder()
         .setDownloadUrl(downloadUrl)                  //(必填) 将要下载的apk网络地址
         .setDownloadPath(downloadPath)                //(可选) apk本地存放地址，默认Environment.DIRECTORY_DOWNLOADS下，若是其他路径可能需添加相应权限
         .setVersion(versionCode, versionName)         //(可选) 将要下载的apk版本信息，若不填每次都会重新去下载
         .setDownloadExternalPubDir(dirType, subPath)  //(可选) 使用DownloadManager下载时的路径,默认Environment.DIRECTORY_DOWNLOADS
         .build()
 
-    ProgressParams.Builder()
+   val progressParams = ProgressParams.Builder()
         .backgroundDrawable(drawable)                 //(可选) 进度框背景，默认colorPrimary
         .setCoordinate(x, y)                          //(可选) 进度框现在x,y坐标
         .size(width, height)                          //(可选) 进度框大小，默认260dpx80dp
@@ -70,9 +78,10 @@
         .progress(progress)                           //(可选) 自定义进度框
         .build()
 
-    Params.Builder()
-        .setDownloadParams(DownloadParams)            //(必填) 构建下载参数
-        .setProgressParams(ProgressParams)            //(可选) 构建进度框参数
+   val params = Params.Builder()
+        .setDownloadParams(downloadParams)            //(必填) 构建下载参数
+        .setProgressParams(progressParams)            //(可选) 构建进度框参数
+        .setPromptParams(promptParams)                //(可选) 构建提示框参数
         .setAuthority(String)                         //(可选) 自定下载路径时，需设置临时授权路径，默认已授权external/Download
         .enableLog(Boolean)                           //(可选) 开启日志打印，默认false
         .useDownloadManager(Boolean)                  //(可选) 后台下载时是否使用DownloadManager下载，默认true

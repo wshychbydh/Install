@@ -5,4 +5,6 @@
 
   <string name="permission_setting">设置</string>
   <string name="permission_no">暂不设置</string>
+  <string name="prompt_cancel">取消</string>
+  <string name="prompt_update">升级</string>
 </resources>
