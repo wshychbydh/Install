@@ -9,7 +9,7 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import com.eye.cool.install.DownloadHelper
-import com.eye.cool.install.ui.InstallPermissionActivity
+import com.eye.cool.install.ui.PermissionActivity
 import java.io.File
 
 
@@ -56,7 +56,7 @@ internal object InstallUtil {
     if (hasPermission) {
       installBetweenNAndO(context, file)
     } else {
-      InstallPermissionActivity.requestInstall(context) {
+      PermissionActivity.requestInstall(context) {
         if (it) {
           installBetweenNAndO(context, file)
         } else {

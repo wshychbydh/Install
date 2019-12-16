@@ -10,13 +10,19 @@
   <application android:allowBackup="true">
 
     <activity
-      android:name=".ui.ProgressActivity"
+      android:name=".ui.ProgressDialog"
       android:exported="false"
       android:launchMode="singleInstance"
       android:theme="@style/ProgressDialog" />
 
     <activity
-      android:name=".ui.InstallPermissionActivity"
+      android:name=".ui.PromptDialog"
+      android:exported="false"
+      android:launchMode="singleInstance"
+      android:theme="@style/ProgressDialog" />
+
+    <activity
+      android:name=".ui.PermissionActivity"
       android:exported="false"
       android:launchMode="singleInstance"
       android:theme="@style/InstallPermissionTranslate" />

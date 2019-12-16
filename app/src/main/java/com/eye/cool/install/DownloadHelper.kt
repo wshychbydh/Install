@@ -12,8 +12,10 @@ import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.support.DownloadReceiver
 import com.eye.cool.install.support.DownloadService
-import com.eye.cool.install.ui.InstallPermissionActivity
-import com.eye.cool.install.ui.ProgressActivity
+import com.eye.cool.install.support.IPromptListener
+import com.eye.cool.install.ui.PermissionActivity
+import com.eye.cool.install.ui.ProgressDialog
+import com.eye.cool.install.ui.PromptDialog
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
@@ -96,7 +98,7 @@ class DownloadHelper {
               DownloadLog.logI("Apk is download!")
               InstallUtil.installApk(context, params.downloadParams.downloadPath!!)
             } else {
-              ProgressActivity.launch(context, params)
+              ProgressDialog.show(context, params)
             }
           } else {
             download(context, params)
@@ -108,7 +110,7 @@ class DownloadHelper {
     } else {
       //UseDownloadManager check it later, download path's accessibility is checked
       if (params.forceUpdate) {
-        ProgressActivity.launch(context, params)
+        ProgressDialog.show(context, params)
       } else {
         download(context, params)
       }
@@ -123,7 +125,7 @@ class DownloadHelper {
     )
 
     if (params.permissionInvoker == null) {
-      InstallPermissionActivity.requestPermission(context, permissions) {
+      PermissionActivity.requestPermission(context, permissions) {
         if (it) {
           checkInstallPermission(invoker)
         } else {
@@ -159,13 +161,15 @@ class DownloadHelper {
 
   private fun tryShowPrompt() {
     if (params.promptParams?.isValid() == true) {
-      params.promptParams!!.apply {
-        prompt!!.show(context, title, content) {
-          if (it) {
-            startOnPermissionGranted()
-          }
+      PromptDialog.show(context, params.promptParams!!, object : IPromptListener {
+        override fun onCancel() {
+          DownloadLog.logI("Download canceled")
         }
-      }
+
+        override fun onUpgrade() {
+          startOnPermissionGranted()
+        }
+      })
     } else {
       startOnPermissionGranted()
     }

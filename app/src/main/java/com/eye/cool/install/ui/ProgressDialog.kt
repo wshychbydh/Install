@@ -1,19 +1,14 @@
 package com.eye.cool.install.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import com.eye.cool.install.R
 import com.eye.cool.install.params.Params
 import com.eye.cool.install.support.ApkDownloader
@@ -24,14 +19,12 @@ import kotlin.math.roundToInt
 /**
  *Created by ycb on 2019/11/28 0028
  */
-internal class ProgressActivity : AppCompatActivity() {
+internal class ProgressDialog : DialogActivity() {
 
   private var apkDownloader: ApkDownloader? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    invasionStatusBar(this)
 
     val params = updateParams!!.progressParams
 
@@ -89,28 +82,11 @@ internal class ProgressActivity : AppCompatActivity() {
 
     private var updateParams: Params? = null
 
-    fun launch(context: Context, updateParams: Params) {
-      val intent = Intent(context, ProgressActivity::class.java)
+    fun show(context: Context, updateParams: Params) {
+      val intent = Intent(context, ProgressDialog::class.java)
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(intent)
       Companion.updateParams = updateParams
-    }
-
-    /**
-     * Set the content layout full the StatusBar, but do not hide StatusBar.
-     */
-    private fun invasionStatusBar(activity: Activity) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        val window = activity.window
-        val decorView = window.decorView
-        decorView.systemUiVisibility = (
-            decorView.systemUiVisibility
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            )
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.statusBarColor = Color.TRANSPARENT
-      }
     }
   }
 
