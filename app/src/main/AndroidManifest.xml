@@ -13,13 +13,13 @@
       android:name=".ui.ProgressDialog"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:theme="@style/ProgressDialog" />
+      android:theme="@style/InstallProgressDialog" />
 
     <activity
       android:name=".ui.PromptDialog"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:theme="@style/PromptDialog" />
+      android:theme="@style/InstallPromptDialog" />
 
     <activity
       android:name=".ui.PermissionActivity"

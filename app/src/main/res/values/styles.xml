@@ -1,6 +1,6 @@
 <resources>
 
-  <style name="ProgressDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+  <style name="InstallProgressDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
     <item name="android:windowBackground">@android:color/transparent</item>
     <item name="android:windowFrame">@null</item>
     <item name="android:windowIsFloating">true</item>
@@ -10,7 +10,7 @@
     <item name="android:windowContentOverlay">@null</item>
   </style>
 
-  <style name="PromptDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+  <style name="InstallPromptDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
     <item name="android:windowBackground">@android:color/transparent</item>
     <item name="android:windowFrame">@null</item>
     <item name="android:windowIsFloating">true</item>
@@ -29,7 +29,7 @@
     <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
   </style>
 
-  <style name="common_progress">
+  <style name="install_common_progress">
     <item name="android:indeterminate">false</item>
     <item name="android:indeterminateOnly">false</item>
     <item name="android:progressDrawable">@drawable/progress_horizontal</item>
