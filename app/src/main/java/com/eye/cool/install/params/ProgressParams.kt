@@ -11,7 +11,7 @@ class ProgressParams private constructor() {
   internal var progress: IProgress? = null
   internal var cancelAble: Boolean = false
   internal var cancelOnTouchOutside: Boolean = false
-  internal var dimAmount: Float = 0.0f
+  internal var dimAmount: Float = 0.6f
   internal var windowAnim: Int = 0
   internal var gravity: Int = Gravity.CENTER
   internal var width: Int = 0
@@ -122,7 +122,7 @@ class ProgressParams private constructor() {
 
     /**
      * The background of the progress dialog
-     * @param drawable Default colorPrimary and corner 8dp
+     * @param drawable Default white and corner 8dp
      */
     fun backgroundDrawable(drawable: Drawable): Builder {
       this.params.backgroundDrawable = drawable

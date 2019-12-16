@@ -19,7 +19,7 @@
       android:name=".ui.PromptDialog"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:theme="@style/ProgressDialog" />
+      android:theme="@style/PromptDialog" />
 
     <activity
       android:name=".ui.PermissionActivity"

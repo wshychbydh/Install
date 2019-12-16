@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -59,6 +60,7 @@ internal class ProgressDialog : DialogActivity() {
         lp.y = params.y
       }
       lp.gravity = params.gravity
+      lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
       lp.dimAmount = params.dimAmount
       window.attributes = lp
     }

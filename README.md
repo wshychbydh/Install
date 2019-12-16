@@ -31,7 +31,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.0.3'
+        implementation 'com.github.wshychbydh:install:1.0.5'
     }
 ```
 
