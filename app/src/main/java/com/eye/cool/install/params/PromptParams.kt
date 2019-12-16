@@ -49,5 +49,7 @@ class PromptParams private constructor() {
       params.prompt = prompt
       return this
     }
+
+    fun build() = params
   }
 }
