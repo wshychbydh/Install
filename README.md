@@ -31,7 +31,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.0.6'
+        implementation 'com.github.wshychbydh:install:1.0.7'
     }
 ```
 
@@ -54,9 +54,16 @@
 1、构建参数
 ```
    val promptParams = PromptParams.Builder()           
-        .setTitle(title)                              //提示框标题
-        .setContent(content)                          //提示框内容
-        .setPrompt(prompt)                            //提示框
+        .setCoordinate(x, y)                          //(可选) 提示框显示的x,y坐标
+        .size(width, height)                          //(可选) 提示框大小，默认80%屏宽
+        .cancelAble(cancelAble)                       //(可选) 提示框是否可按返回键取消，默认false
+        .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 提示框是否在点击区域外取消，默认false
+        .dimAmount(dimAmount)                         //(可选) 提示框出现时，背景灰度，默认0
+        .gravity(gravity)                             //(可选) 提示框对齐方式，默认Gravity.Center
+        .windowAnim(windowAnim)                       //(可选) 提示框window动画，默认无
+        .setTitle(title)                              //(可选) 提示框标题
+        .setContent(content)                          //(可选) 提示框内容（内容和标题需至少有一个，否则不提示）
+        .setPrompt(prompt)                            //(可选) 自定义提示框
         .build() 
 
    val downloadParams = DownloadParams.Builder()
@@ -67,14 +74,13 @@
         .build()
 
    val progressParams = ProgressParams.Builder()
-        .backgroundDrawable(drawable)                 //(可选) 进度框背景，默认colorPrimary
-        .setCoordinate(x, y)                          //(可选) 进度框现在x,y坐标
-        .size(width, height)                          //(可选) 进度框大小，默认260dpx80dp
-        .cancelAble(cancelAble)                       //(可选) 进度框是否可按返回键取消，默认false
-        .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 进度框是否在点击区域外取消，默认false
+        .setCoordinate(x, y)                          //(可选) 显示的x,y坐标
+        .size(width, height)                          //(可选) 进度框大小，默认100%屏宽
+        .cancelAble(cancelAble)                       //(可选) 是否可取消，但不会取消任务，默认false
+        .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 是否在点击区域外取消，不会取消任务，默认false
         .dimAmount(dimAmount)                         //(可选) 进度框出现时，背景灰度，默认0
-        .gravity(gravity)                             //(可选) 进度框对齐方式，默认Gravity.Center
-        .windowAnim(windowAnim)                       //(可选) 进度框动画，默认无
+        .gravity(gravity)                             //(可选) 对齐方式，默认Gravity.Center
+        .windowAnim(windowAnim)                       //(可选) 进度框window动画，默认无
         .progress(progress)                           //(可选) 自定义进度框
         .build()
 

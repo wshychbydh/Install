@@ -18,5 +18,10 @@ interface IPrompt {
    * @param promptListener User-selected callbacks
    * @return The view to display
    */
-  fun createView(context: Context, title: CharSequence?, content: CharSequence?, promptListener: IPromptListener): View?
+  fun createView(
+      context: Context,
+      title: CharSequence?,
+      content: CharSequence?,
+      promptListener: IPromptListener
+  ): View?
 }

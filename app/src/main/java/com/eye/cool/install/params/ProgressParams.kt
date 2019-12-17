@@ -1,6 +1,5 @@
 package com.eye.cool.install.params
 
-import android.graphics.drawable.Drawable
 import android.view.Gravity
 import com.eye.cool.install.support.IProgress
 
@@ -8,6 +7,7 @@ import com.eye.cool.install.support.IProgress
  *Created by ycb on 2019/11/28 0028
  */
 class ProgressParams private constructor() {
+
   internal var progress: IProgress? = null
   internal var cancelAble: Boolean = false
   internal var cancelOnTouchOutside: Boolean = false
@@ -18,7 +18,6 @@ class ProgressParams private constructor() {
   internal var height: Int = 0
   internal var x: Int = -1
   internal var y: Int = -1
-  internal var backgroundDrawable: Drawable? = null
 
   class Builder {
 
@@ -55,7 +54,8 @@ class ProgressParams private constructor() {
     }
 
     /**
-     * Sets whether this activity is finished when onBackPressed().
+     * Sets whether this dialog is dismissed when onBackPressed().
+     * Only dismiss dialog, never stop task
      *
      * @param cancelAble default false
      */
@@ -65,7 +65,8 @@ class ProgressParams private constructor() {
     }
 
     /**
-     * Sets whether this activity is finished when touched outside its window's bounds.
+     * Sets whether this dialog is dismissed when touched outside its window's bounds.
+     * Only dismiss dialog, never stop task
      *
      * @param cancelOnTouchOutside default false
      */
@@ -117,15 +118,6 @@ class ProgressParams private constructor() {
     fun setCoordinate(x: Int, y: Int): Builder {
       this.params.x = x
       this.params.y = y
-      return this
-    }
-
-    /**
-     * The background of the progress dialog
-     * @param drawable Default white and corner 8dp
-     */
-    fun backgroundDrawable(drawable: Drawable): Builder {
-      this.params.backgroundDrawable = drawable
       return this
     }
 

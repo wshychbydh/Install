@@ -73,14 +73,14 @@ internal class ApkDownloader(
           outputStream = FileOutputStream(params.downloadParams.downloadPath!!)
           val buf = ByteArray(1024)
           var len: Int
-          val fileLength = connection.contentLength
+          val fileLength = connection.contentLength.toFloat() / 100f
           var readLength = 0
           do {
             len = inputStream.read(buf)
-            if (len <= 0) break
+            if (len < 0) break
             readLength += len
             outputStream.write(buf, 0, len)
-            publishProgress(readLength / fileLength.toFloat() * 100f)
+            publishProgress(readLength.toFloat() / fileLength)
           } while (len > -1)
         }
       } catch (e: Exception) {

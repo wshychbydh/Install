@@ -5,13 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.eye.cool.install.R
 import com.eye.cool.install.params.Params
+import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.support.ApkDownloader
 import com.eye.cool.install.support.IProgress
 import kotlinx.android.synthetic.main.dialog_download_progress.view.*
@@ -35,43 +34,48 @@ internal class ProgressDialog : DialogActivity() {
       params.progress = DefaultProgressView(this)
     }
 
-    params.progress!!.getProgressView().apply {
-      val layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-      if (params.width > 0) {
-        layoutParams.width = params.width
-      }
-      if (params.height > 0) {
-        layoutParams.height = params.height
-      }
-      if (params.backgroundDrawable != null) {
-        setBackgroundDrawable(params.backgroundDrawable)
-      }
-      setContentView(this, layoutParams)
-      window.decorView.setPadding(0, 0, 0, 0)
+    setContentView(params.progress!!.getProgressView())
+    setupWindow(params)
 
-      val lp = window.attributes
-      if (params.windowAnim != 0) {
-        lp.windowAnimations = params.windowAnim
-      }
-      if (params.x > 0) {
-        lp.x = params.x
-      }
-      if (params.y > 0) {
-        lp.y = params.y
-      }
-      lp.gravity = params.gravity
-      lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
-      lp.dimAmount = params.dimAmount
-      window.attributes = lp
-    }
     apkDownloader = ApkDownloader(this, updateParams!!)
     apkDownloader!!.start()
+  }
+
+  private fun setupWindow(params: ProgressParams) {
+    window.decorView.setPadding(0, 0, 0, 0)
+
+    val lp = window.attributes
+
+    if (params.width > 0) {
+      lp.width = params.width
+    }
+    if (params.height > 0) {
+      lp.height = params.height
+    }
+
+    lp.windowAnimations = params.windowAnim
+
+    if (params.x > 0) {
+      lp.x = params.x
+    }
+    if (params.y > 0) {
+      lp.y = params.y
+    }
+    lp.gravity = params.gravity
+    lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
+    lp.dimAmount = params.dimAmount
+    window.attributes = lp
   }
 
   override fun onBackPressed() {
     if (updateParams!!.progressParams.cancelAble) {
       super.onBackPressed()
     }
+  }
+
+  override fun finish() {
+    super.finish()
+    overridePendingTransition(0, 0)
   }
 
   override fun onDestroy() {
