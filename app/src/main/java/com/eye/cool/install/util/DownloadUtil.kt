@@ -1,11 +1,16 @@
 package com.eye.cool.install.util
 
+import android.annotation.TargetApi
 import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.AssetFileDescriptor
+import android.net.Uri
+import android.os.Build
 import com.eye.cool.install.params.DownloadParams
 import java.io.File
+import java.io.FileNotFoundException
 
 /**
  * Created by ycb on 2019/11/28
@@ -13,9 +18,9 @@ import java.io.File
 internal object DownloadUtil {
 
   fun checkApkDownload(context: Context, params: DownloadParams): Boolean {
-    val file = File(params.downloadPath ?: "")
+    val file = File(params.downloadPath ?: return false)
     DownloadLog.logI("download path-->${file.absolutePath}")
-    if (file.exists()) {
+    if (isFileExist(context, file)) {
       val result = isApkDownload(context, params)
       if (result) {
         return true
@@ -27,7 +32,7 @@ internal object DownloadUtil {
   }
 
   fun checkApkDownload(context: Context, file: File, params: DownloadParams): Boolean {
-    if (file.exists()) {
+    if (isFileExist(context, file)) {
       val result = isApkDownload(context, params)
       if (result) {
         return true
@@ -61,5 +66,40 @@ internal object DownloadUtil {
     val intent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     context.startActivity(intent)
+  }
+
+  fun isFileExist(context: Context, file: File): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      isFileExistsAboveQ(context, file.absolutePath)
+    } else {
+      file.exists()
+    }
+  }
+
+  fun isFileExist(context: Context, path: String): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      isFileExistsAboveQ(context, path)
+    } else {
+      File(path).exists()
+    }
+  }
+
+  @TargetApi(Build.VERSION_CODES.Q)
+  private fun isFileExistsAboveQ(context: Context, path: String): Boolean {
+    var afd: AssetFileDescriptor? = null
+    val cr = context.contentResolver
+    return try {
+      val afd = cr.openAssetFileDescriptor(Uri.parse(path), "r")
+      if (afd == null) {
+        false
+      } else {
+        afd.close()
+        true
+      }
+    } catch (e: FileNotFoundException) {
+      false
+    } finally {
+      afd?.close()
+    }
   }
 }
