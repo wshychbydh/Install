@@ -110,6 +110,14 @@
 **注**：如无存储权限时会主动请求权限；若无请求安装包权限时，会弹引导授权安装包提示框
 
 
-#### 联系方式 wshychbydh@gmail.com
+#####   
+ 
+**Demo地址：(https://github.com/wshychbydh/SampleDemo)**    
+    
+##
+
+###### **欢迎fork，更希望你能贡献commit.** (*￣︶￣)    
+
+###### 联系方式 wshychbydh@gmail.com
 
 [![](https://jitpack.io/v/wshychbydh/install.svg)](https://jitpack.io/#wshychbydh/install)
