@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.webkit.URLUtil
+import androidx.core.content.ContextCompat
 import com.eye.cool.install.params.DownloadParams
 import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
@@ -218,7 +219,7 @@ class DownloadHelper {
       val intent = Intent(context, DownloadService::class.java)
       intent.putExtra(DownloadService.DOWNLOAD_URL, params.downloadParams.downloadUrl)
       intent.putExtra(DownloadService.FILE_PATH, params.downloadParams.downloadPath)
-      context.startService(intent)
+      ContextCompat.startForegroundService(context, intent)
     }
   }
 
