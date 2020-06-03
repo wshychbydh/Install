@@ -8,7 +8,7 @@
 
 2、适配7.0以上的文件权限
 
-3、适配8.0以上安装包权限引导设置
+3、适配8.0安装包权限引导设置
 
 4、支持自定义升级提示框
 
@@ -31,7 +31,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.0.7'
+        implementation 'com.github.wshychbydh:install:1.0.8'
     }
 ```
 
