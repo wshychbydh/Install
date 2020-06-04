@@ -10,6 +10,7 @@ group = 'com.github.wshychbydh'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
+    resourcePrefix 'install_'
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 29
