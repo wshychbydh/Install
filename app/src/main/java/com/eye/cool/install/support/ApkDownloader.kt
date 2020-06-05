@@ -23,7 +23,7 @@ internal class ApkDownloader(
   private var task: DownloadTask? = null
 
   fun start() {
-    if (DownloadUtil.checkApkDownload(context, params.downloadParams)) {
+    if (params.downloadParams.isApkFile && DownloadUtil.checkApkDownload(context, params.downloadParams)) {
       InstallUtil.installApk(context, params.downloadParams.downloadPath!!)
     } else {
       task = DownloadTask()
@@ -49,7 +49,8 @@ internal class ApkDownloader(
     override fun onPostExecute(result: Unit?) {
       if (!isCancelled) {
         val apkPath = params.downloadParams.downloadPath!!
-        if (!params.progressParams.progress!!.onFinished(apkPath)) {
+        val handled = params.progressParams.progress!!.onFinished(apkPath)
+        if (!handled && params.downloadParams.isApkFile) {
           InstallUtil.installApk(context, apkPath)
         }
       }

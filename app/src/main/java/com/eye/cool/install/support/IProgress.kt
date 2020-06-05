@@ -30,7 +30,7 @@ interface IProgress {
    * Download finished
    *
    * @param path the apk path download completed
-   * @return handled install, default false
+   * @return handled download, default false. if return true, apk will not be installed automatically
    */
-  fun onFinished(path: String): Boolean
+  fun onFinished(path: String): Boolean = false
 }

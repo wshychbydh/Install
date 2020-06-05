@@ -11,6 +11,8 @@ class DownloadParams private constructor() {
   internal var downloadDirType: String = Environment.DIRECTORY_DOWNLOADS
   internal var downloadSubPath: String? = null
   internal var downloadPath: String? = null
+  internal var downloadFileName: String? = null
+  internal var isApkFile: Boolean = true
   internal var versionName: String? = null
   internal var versionCode: Int = 0
 
@@ -41,6 +43,7 @@ class DownloadParams private constructor() {
     }
 
     /**
+     * Use DownloadManager
      * The download dir where the apk will be download to
      *
      *@param dirType The directory type to pass to {@link Context#getExternalPubDir(String)} or {@link Context#getExternalFilesDir(String)}
@@ -53,14 +56,38 @@ class DownloadParams private constructor() {
     }
 
     /**
-     * The download path where the apk will be download to.
-     * Make sure you have access to the path.
+     * The download path where the file will be download to.
+     * Please make sure you have access to the file.
      *
      * @param downloadPath Default in external or file cache {download/${app_name}.apk}
      * {@link getExternalStoragePublicDirectory()} or {@link getExternalFilesDir()}
+     *
+     * It can be an absolute path or a directory.
+     * If it is a directory, it will be spliced with filename.
+     *
      */
     fun setDownloadPath(downloadPath: String): Builder {
       params.downloadPath = downloadPath
+      return this
+    }
+
+    /**
+     * If downloadPath is a directory. it will be spliced with filename.
+     *
+     * @param fileName such as xx.apk
+     *
+     */
+    fun setDownloadFileName(fileName: String): Builder {
+      params.downloadFileName = fileName
+      return this
+    }
+
+    /**
+     * Whether the downloaded file is executable for installation, default true
+     * @param isApkFile
+     */
+    fun isApkFile(isApkFile: Boolean): Builder {
+      params.isApkFile = isApkFile
       return this
     }
 

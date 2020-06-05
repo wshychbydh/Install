@@ -22,10 +22,10 @@ internal class DefaultPrompt : IPrompt {
         .setCancelable(false)
         .setTitle(title)
         .setMessage(content)
-        .setNegativeButton(R.string.prompt_cancel) { _, _ ->
+        .setNegativeButton(R.string.install_prompt_cancel) { _, _ ->
           listener.onCancel()
         }
-        .setPositiveButton(R.string.prompt_update) { _, _ ->
+        .setPositiveButton(R.string.install_prompt_update) { _, _ ->
           listener.onUpgrade()
         }
         .show()

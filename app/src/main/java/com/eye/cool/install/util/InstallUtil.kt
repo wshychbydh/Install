@@ -8,6 +8,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
 import com.eye.cool.install.DownloadHelper
 import com.eye.cool.install.ui.PermissionActivity
@@ -17,27 +18,38 @@ import java.io.File
 /**
  *Created by ycb on 2019/11/25 0025
  */
-internal object InstallUtil {
+object InstallUtil {
 
+  @WorkerThread
+  @JvmStatic
   fun installApk(context: Context, downloadId: Long) {
-    val apkPath = queryPathByDownloadId(context, downloadId)
+    val apkPath = queryFileByDownloadId(context, downloadId)
     if (apkPath.isNullOrEmpty()) {
-      DownloadLog.logE("The apk path doest not exist!")
+      DownloadLog.logE("The apk file could not be found by downloadId($downloadId)")
       return
     }
-    installApk(context, apkPath)
+    installApk(context, convertPath(apkPath))
   }
 
+  private fun convertPath(url: String): String {
+    if (url.startsWith("file://")) {
+      return url.replace("file://", "")
+    }
+    return url
+  }
+
+  @JvmStatic
   fun installApk(context: Context, apkPath: String) {
     val file = File(apkPath)
     if (!DownloadUtil.isFileExist(context, file)) {
-      DownloadLog.logE("The apk file doest not exist!")
+      DownloadLog.logE("The apk file($apkPath) doest not exist or can not access!")
       return
     }
     installApk(context, file)
   }
 
-  private fun installApk(context: Context, apkFile: File) {
+  @JvmStatic
+  fun installApk(context: Context, apkFile: File) {
     when {
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
         installAboveO(context, apkFile)
@@ -68,6 +80,7 @@ internal object InstallUtil {
   }
 
   private fun installBetweenNAndO(context: Context, apkFile: File) {
+    DownloadLog.logI("Install apk file-->${apkFile.absolutePath}")
     val intent = Intent(Intent.ACTION_VIEW)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     val authority = DownloadHelper.authority ?: "${context.packageName}.apk.FileProvider"
@@ -78,23 +91,36 @@ internal object InstallUtil {
   }
 
   private fun installBelowN(context: Context, uri: Uri) {
+    DownloadLog.logI("Install apk file-->${uri.path}")
     val intent = Intent(Intent.ACTION_VIEW)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     intent.setDataAndType(uri, "application/vnd.android.package-archive")
     context.startActivity(intent)
   }
 
-  private fun queryApkPathByDownloadId(context: Context, downloadId: Long): String? {
+  @WorkerThread
+  @JvmStatic
+  fun queryFileByDownloadId(context: Context, downloadId: Long): String? {
+    val path = queryPathByDownloadId(context, downloadId)
+    if (path.isNullOrEmpty()) return queryFilePathByDownloadId(context, downloadId)
+
+    if (DownloadUtil.isFileExist(context, convertPath(path))) {
+      return path
+    }
+    return queryFilePathByDownloadId(context, downloadId)
+  }
+
+  private fun queryFilePathByDownloadId(context: Context, downloadId: Long): String? {
     if (downloadId < 0) return null
     val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     val uri = manager.getUriForDownloadedFile(downloadId)
     val projection = arrayOf(MediaStore.Downloads.DATA)
     val cr = context.contentResolver.query(uri, projection, null, null, null) ?: return null
-    cr.use { cr ->
-      if (cr.moveToFirst()) {
-        val index = cr.getColumnIndexOrThrow(MediaStore.Downloads.DATA)
+    cr.use { c ->
+      if (c.moveToFirst()) {
+        val index = c.getColumnIndexOrThrow(MediaStore.Downloads.DATA)
         if (index > -1) {
-          return cr.getString(index)
+          return c.getString(index)
         }
       }
     }
@@ -108,9 +134,9 @@ internal object InstallUtil {
       query.setFilterById(downloadId)
       query.setFilterByStatus(DownloadManager.STATUS_SUCCESSFUL)
       val cur: Cursor = downloader.query(query) ?: return null
-      cur.use { cur ->
-        if (cur.moveToFirst()) {
-          return cur?.getString(cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
+      cur.use { c ->
+        if (c.moveToFirst()) {
+          return c.getString(cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
         }
       }
     }

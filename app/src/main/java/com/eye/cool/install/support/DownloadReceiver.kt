@@ -7,6 +7,9 @@ import android.content.Intent
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * Created by ycb on 2019/11/28 0028
@@ -19,21 +22,29 @@ class DownloadReceiver : BroadcastReceiver() {
       DownloadUtil.toDownloadPage(context)
 
     } else if (DownloadManager.ACTION_DOWNLOAD_COMPLETE == intent?.action) {
+      GlobalScope.launch {
 
-      val currentDownloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+        val currentDownloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
 
-      var downloadId = context.getSharedPreferences(DOWNLOAD, Context.MODE_PRIVATE)?.getLong(DOWNLOAD_ID, 0)
+        DownloadLog.logI("DownloadManager download is Finished")
 
-      if (currentDownloadId != downloadId) return
+        val downloadInfo = SharedHelper.getDownloadById(context, currentDownloadId) ?: return@launch
+        SharedHelper.clearDownload(context, currentDownloadId)
 
-      DownloadLog.logI("DownloadManager download by Finished")
+        if (!downloadInfo.isApk) return@launch
 
-      InstallUtil.installApk(context, downloadId)
+        DownloadLog.logI("DownloadId：$currentDownloadId, isApk:${downloadInfo.isApk}, path:${downloadInfo.path}")
+
+        if (DownloadUtil.isFileExist(context, downloadInfo.path)) {
+          InstallUtil.installApk(context, File(downloadInfo.path))
+        } else {
+          InstallUtil.installApk(context, currentDownloadId)
+        }
+      }
     }
   }
 
   companion object {
     const val DOWNLOAD = "download"
-    const val DOWNLOAD_ID = "download_id"
   }
 }

@@ -16,7 +16,7 @@ class Params private constructor() {
   internal var downloadParams: DownloadParams = DownloadParams.Builder().build()
   internal var progressParams: ProgressParams = ProgressParams.Builder().build()
   internal var promptParams: PromptParams? = null
-  internal var forceUpdate: Boolean = false
+  internal var forceDownload: Boolean = false
   internal var permissionInvoker: PermissionInvoker? = null
   internal var settingInvoker: SettingInvoker? = null
 
@@ -60,7 +60,7 @@ class Params private constructor() {
      * @param forceUpdate  default false
      */
     fun forceUpdate(forceUpdate: Boolean): Builder {
-      params.forceUpdate = forceUpdate
+      params.forceDownload = forceUpdate
       return this
     }
 

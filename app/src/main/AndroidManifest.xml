@@ -7,25 +7,27 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
   <application android:allowBackup="true">
 
     <activity
       android:name=".ui.ProgressDialog"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:theme="@style/InstallProgressDialog" />
+      android:theme="@style/install_InstallProgressDialog" />
 
     <activity
       android:name=".ui.PromptDialog"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:theme="@style/InstallPromptDialog" />
+      android:theme="@style/install_InstallPromptDialog" />
 
     <activity
       android:name=".ui.PermissionActivity"
       android:exported="false"
       android:launchMode="singleInstance"
-      android:theme="@style/InstallPermissionTranslate" />
+      android:theme="@style/install_InstallPermissionTranslate" />
 
     <receiver
       android:name=".support.DownloadReceiver"
@@ -44,7 +46,7 @@
       android:grantUriPermissions="true">
       <meta-data
         android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/apk_file_paths" />
+        android:resource="@xml/install_apk_file_paths" />
     </provider>
     <service
       android:name=".support.DownloadService"

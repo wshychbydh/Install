@@ -11,15 +11,18 @@ import androidx.core.content.ContextCompat
 import com.eye.cool.install.params.DownloadParams
 import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
-import com.eye.cool.install.support.DownloadReceiver
+import com.eye.cool.install.support.DownloadInfo
 import com.eye.cool.install.support.DownloadService
 import com.eye.cool.install.support.IPromptListener
+import com.eye.cool.install.support.SharedHelper
 import com.eye.cool.install.ui.PermissionActivity
 import com.eye.cool.install.ui.ProgressDialog
 import com.eye.cool.install.ui.PromptDialog
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 class DownloadHelper {
@@ -50,10 +53,11 @@ class DownloadHelper {
   }
 
   fun start() {
+    GlobalScope.launch {
+      if (!checkParams()) return@launch
 
-    if (!checkParams()) return
-
-    tryShowPrompt()
+      tryShowPrompt()
+    }
   }
 
   private fun checkParams(): Boolean {
@@ -61,7 +65,8 @@ class DownloadHelper {
       DownloadLog.logE("Download url(${params.downloadParams.downloadUrl}) is invalid..")
       return false
     }
-    if (!params.useDownloadManager || params.forceUpdate) {
+
+    if (!params.useDownloadManager || params.forceDownload) {
       if (params.downloadParams.downloadPath.isNullOrEmpty()) {
         try {
           params.downloadParams.downloadPath = composeDownloadPath()
@@ -83,6 +88,7 @@ class DownloadHelper {
         }
       }
     }
+
     if (params.downloadParams.downloadSubPath.isNullOrEmpty()) {
       params.downloadParams.downloadSubPath = composeDownloadSubPath()
     }
@@ -94,9 +100,9 @@ class DownloadHelper {
     if (target >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       checkPermission { result ->
         if (result) {
-          if (params.forceUpdate) {
-            if (DownloadUtil.checkApkDownload(context, params.downloadParams)) {
-              DownloadLog.logI("Apk is download!")
+          if (params.forceDownload) {
+            if (params.downloadParams.isApkFile && DownloadUtil.checkApkDownload(context, params.downloadParams)) {
+              DownloadLog.logI("File is download!")
               InstallUtil.installApk(context, params.downloadParams.downloadPath!!)
             } else {
               ProgressDialog.show(context, params)
@@ -110,7 +116,7 @@ class DownloadHelper {
       }
     } else {
       //UseDownloadManager check it later, download path's accessibility is checked
-      if (params.forceUpdate) {
+      if (params.forceDownload) {
         ProgressDialog.show(context, params)
       } else {
         download(context, params)
@@ -128,7 +134,11 @@ class DownloadHelper {
     if (params.permissionInvoker == null) {
       PermissionActivity.requestPermission(context, permissions) {
         if (it) {
-          checkInstallPermission(invoker)
+          if (params.downloadParams.isApkFile) {
+            checkInstallPermission(invoker)
+          } else {
+            invoker.invoke(true)
+          }
         } else {
           invoker.invoke(false)
         }
@@ -136,7 +146,11 @@ class DownloadHelper {
     } else {
       params.permissionInvoker!!.request(permissions) {
         if (it) {
-          checkInstallPermission(invoker)
+          if (params.downloadParams.isApkFile) {
+            checkInstallPermission(invoker)
+          } else {
+            invoker.invoke(true)
+          }
         } else {
           invoker.invoke(false)
         }
@@ -184,34 +198,44 @@ class DownloadHelper {
         if (pubDir == null || (!pubDir.exists() && !pubDir.mkdirs()) || !pubDir.canRead() || !pubDir.canWrite()) {
           fileDir = context.getExternalFilesDir(params.downloadParams.downloadDirType)
           if (fileDir == null || (!fileDir.exists() && !fileDir.mkdirs()) || !fileDir.canRead() || !fileDir.canWrite()) {
-            "The file directory(${pubDir?.absolutePath} or ${fileDir?.absolutePath}) are unavailable or inaccessible"
+            DownloadLog.logE("The file directory(${pubDir?.absolutePath} or ${fileDir?.absolutePath}) are unavailable or inaccessible!")
             return
           }
         }
         val file = File(fileDir ?: pubDir, params.downloadParams.downloadSubPath)
-        if (DownloadUtil.checkApkDownload(context, file, params.downloadParams)) {
-          DownloadLog.logI("Apk is download!")
+        if (params.downloadParams.isApkFile && DownloadUtil.checkApkDownload(context, file, params.downloadParams)) {
+          DownloadLog.logI("File is download!")
           InstallUtil.installApk(context, params.downloadParams.downloadPath!!)
         } else {
           DownloadLog.logI("Download by DownloadManager...")
           val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
           val request = DownloadManager.Request(Uri.parse(params.downloadParams.downloadUrl))
+          val downloadDir: File?
           if (fileDir == null) {
+            downloadDir = Environment.getExternalStoragePublicDirectory(params.downloadParams.downloadDirType)
             request.setDestinationInExternalPublicDir(params.downloadParams.downloadDirType, params.downloadParams.downloadSubPath)
           } else {
+            downloadDir = context.getExternalFilesDir(params.downloadParams.downloadDirType)
             request.setDestinationInExternalFilesDir(context, params.downloadParams.downloadDirType, params.downloadParams.downloadSubPath)
           }
 
+          val downloadFile = File(downloadDir, params.downloadParams.downloadSubPath)
+
           request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
           val downloadId = manager.enqueue(request)
-          context.getSharedPreferences(DownloadReceiver.DOWNLOAD, Context.MODE_PRIVATE).edit().putLong(DownloadReceiver.DOWNLOAD_ID, downloadId).commit()
+
+          SharedHelper.saveDownload(context, DownloadInfo(
+              downloadId,
+              params.downloadParams.isApkFile,
+              downloadFile.absolutePath
+          ))
         }
       } catch (e: Exception) {
         e.printStackTrace()
         DownloadLog.logE(e.message ?: "")
       }
     } else {
-      if (DownloadUtil.checkApkDownload(context, params.downloadParams)) {
+      if (params.downloadParams.isApkFile && DownloadUtil.checkApkDownload(context, params.downloadParams)) {
         DownloadLog.logI("Apk is download!")
         InstallUtil.installApk(context, params.downloadParams.downloadPath!!)
         return
@@ -219,6 +243,7 @@ class DownloadHelper {
       val intent = Intent(context, DownloadService::class.java)
       intent.putExtra(DownloadService.DOWNLOAD_URL, params.downloadParams.downloadUrl)
       intent.putExtra(DownloadService.FILE_PATH, params.downloadParams.downloadPath)
+      intent.putExtra(DownloadService.APK_FILE, params.downloadParams.isApkFile)
       ContextCompat.startForegroundService(context, intent)
     }
   }
@@ -233,10 +258,21 @@ class DownloadHelper {
   }
 
   private fun composeDownloadSubPath(): String {
+
+    val fileName = params.downloadParams.downloadFileName
+    if (!fileName.isNullOrEmpty()) {
+      return if (fileName.endsWith(".apk")) fileName else "$fileName.apk"
+    }
+
+    val url = params.downloadParams.downloadUrl
+    if (url?.endsWith(".apk") == true) {
+      return url.substring(url.lastIndexOf("/"), url.length)
+    }
+
     val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
         ?: return "install.apk"
-    val name = context.packageManager.getApplicationLabel(appInfo) as? String ?: "install"
-    return "$name.apk"
+    val appName = context.packageManager.getApplicationLabel(appInfo) as? String ?: "install"
+    return "$appName.apk"
   }
 
   companion object {

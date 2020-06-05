@@ -37,16 +37,16 @@ internal class PermissionActivity : Activity() {
   }
 
   private fun showInstallSettingDialog() {
-    val message = getString(R.string.permission_install_packages_setting_rationale, getAppName(this))
+    val message = getString(R.string.install_permission_install_packages_setting_rationale, getAppName(this))
     AlertDialog.Builder(this)
         .setCancelable(false)
-        .setTitle(R.string.permission_title_rationale)
+        .setTitle(R.string.install_permission_title_rationale)
         .setMessage(message)
-        .setPositiveButton(R.string.permission_setting) { _, _ ->
+        .setPositiveButton(R.string.install_permission_setting) { _, _ ->
           val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName"))
           startActivityForResult(intent, REQUEST_INSTALL_PACKAGES_CODE)
         }
-        .setNegativeButton(R.string.permission_no) { _, _ -> sRequestInstallPackageListener?.invoke(false) }
+        .setNegativeButton(R.string.install_permission_no) { _, _ -> sRequestInstallPackageListener?.invoke(false) }
         .show()
   }
 

@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="@drawable/progress_background"
+  android:background="@drawable/install_progress_background"
   android:gravity="center_vertical"
   android:minWidth="260dp"
   android:minHeight="80dp"

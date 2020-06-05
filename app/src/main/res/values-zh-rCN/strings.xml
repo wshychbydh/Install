@@ -1,10 +1,10 @@
 <resources>
-  <string name="download_msg">已下载 %1$.2f%2$s</string>
-  <string name="permission_title_rationale">提示</string>
-  <string name="permission_install_packages_setting_rationale">“%1$s”版本升级需要权限，请授权允许安装未知来源应用!</string>
+  <string name="install_download_msg">已下载 %1$.2f%2$s</string>
+  <string name="install_permission_title_rationale">提示</string>
+  <string name="install_permission_install_packages_setting_rationale">“%1$s”版本升级需要权限，请授权允许安装未知来源应用!</string>
 
-  <string name="permission_setting">设置</string>
-  <string name="permission_no">暂不设置</string>
-  <string name="prompt_cancel">取消</string>
-  <string name="prompt_update">升级</string>
+  <string name="install_permission_setting">设置</string>
+  <string name="install_permission_no">暂不设置</string>
+  <string name="install_prompt_cancel">取消</string>
+  <string name="install_prompt_update">升级</string>
 </resources>

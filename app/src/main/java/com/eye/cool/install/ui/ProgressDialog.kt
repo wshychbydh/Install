@@ -13,7 +13,6 @@ import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.support.ApkDownloader
 import com.eye.cool.install.support.IProgress
-import kotlinx.android.synthetic.main.dialog_download_progress.view.*
 import kotlin.math.roundToInt
 
 /**
@@ -98,14 +97,14 @@ internal class ProgressDialog : DialogActivity() {
 
   inner class DefaultProgressView(context: Context) : IProgress {
 
-    private val contentView: View = LayoutInflater.from(context).inflate(R.layout.dialog_download_progress, null)
-    private val progressTv: TextView = contentView.progressTv
-    private val progressBar: ProgressBar = contentView.progressBar
+    private val contentView: View = LayoutInflater.from(context).inflate(R.layout.install_dialog_download_progress, null)
+    private val progressTv: TextView = contentView.findViewById(R.id.progressTv)
+    private val progressBar: ProgressBar = contentView.findViewById(R.id.progressBar)
 
     override fun getProgressView(): View = contentView
 
     override fun onProgress(progress: Float) {
-      progressTv.text = getString(R.string.download_msg, progress, "%")
+      progressTv.text = getString(R.string.install_download_msg, progress, "%")
       progressBar.progress = progress.roundToInt()
     }
 
