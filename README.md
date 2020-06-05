@@ -1,6 +1,6 @@
 # Apk自动升级安装
 
-适配6.0，7.0，8.0
+适配6.0，7.0，8.0，9.0
 
 ### 功能介绍：
 
@@ -14,7 +14,9 @@
 
 5、支持自定义权限请求和引导授权安装框
 
-6、提供3种下载apk方式（带进度条下载、后台下载、DownloadManager下载）
+6、提供3种下载apk方式（带进度条下载、后台服务下载、DownloadManager下载）
+
+7、解决使用DownloadManager下载中文名的文件，导致查询到的文件路径无效
 
 ### 使用方法：
 
@@ -31,7 +33,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.0.8'
+        implementation 'com.github.wshychbydh:install:1.1.0'
     }
 ```
 
@@ -45,9 +47,7 @@
 ```
 报其他类似的重复错误时，添加方式同上。
 
-2)、该工具类只提供运行时权限申请，提供7.0以上文件访问权限，无需再额外添加
-
-3)、9.0的部分机型使用DownloadManager可能会提示文件路径无效，请使用另外两种下载方式，设置Params.useDownloadManager(false)
+2)、该工具类已提供运行时权限申请，提供7.0以上文件访问权限，无需再额外添加
 
 ### 示例：
 
@@ -68,7 +68,9 @@
 
    val downloadParams = DownloadParams.Builder()
         .setDownloadUrl(downloadUrl)                  //(必填) 将要下载的apk网络地址
-        .setDownloadPath(downloadPath)                //(可选) apk本地存放地址，默认Environment.DIRECTORY_DOWNLOADS下，若是其他路径可能需添加相应权限
+        .setDownloadPath(downloadPath)                //(可选) 目录或绝对路径。apk本地存放地址，默认Environment.DIRECTORY_DOWNLOADS下，若是其他路径可能需添加相应权限
+        .setDownloadFileName(name)                    //(可选) 如果downloadPath是目录，将拼接该文件名
+        .isApkFile(isApkFile)                         //(可选) 下载的文件是否为apk，默认true，若是apk将会触发自动安装
         .setVersion(versionCode, versionName)         //(可选) 将要下载的apk版本信息，若不填每次都会重新去下载
         .setDownloadExternalPubDir(dirType, subPath)  //(可选) 使用DownloadManager下载时的路径,默认Environment.DIRECTORY_DOWNLOADS
         .build()
