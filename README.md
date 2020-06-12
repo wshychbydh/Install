@@ -18,6 +18,8 @@
 
 7、解决使用DownloadManager下载中文名的文件，导致查询到的文件路径无效
 
+8、已下载文件可配置不重复下载，也可以用于普通文件的下载
+
 ### 使用方法：
 
 1、在root目录的build.gradle目录中添加
@@ -47,7 +49,9 @@
 ```
 报其他类似的重复错误时，添加方式同上。
 
-2)、该工具类已提供运行时权限申请，提供7.0及以上默认路径(Download)的文件访问权限，无需再额外添加
+2)、若无存储权限会主动请求权限；若无请求安装包权限时，会弹引导授权安装包提示框
+
+3)、提供7.0及以上默认路径(Download)的文件访问权限，其他路径需自行添加访问权限
 
 ### 示例：
 
@@ -78,7 +82,7 @@
 
    //当downloadParams.repeateDownlaod为false的时候配置不重复下载条件
    val fileParams = FileParams.Builder()
-        .isApkFile(isApkFile)                         //(可选) 下载的文件是否为apk，默认true，若是apk将会触发自动安装
+        .isApk(isApk)                                 //(可选) 下载的文件是否为apk，默认true，若是apk将会触发自动安装
         .setVersion(versionCode, versionName)         //(可选) 将要下载的apk版本信息
         .setLength(versionCode, versionName)          //(可选) 将要下载的文件长度，若与已下载的文件长度一致将不重复下载
         .setMD5(versionCode, versionName)             //(可选) 将要下载的文件md5值，若与已下载的文件md5一致将不重复下载
@@ -125,8 +129,6 @@
     
     DownloadHelper(context, params).start()
 ```
-
-**注**：如无存储权限时会主动请求权限；若无请求安装包权限时，会弹引导授权安装包提示框
 
 
 #####   
