@@ -3,9 +3,7 @@ package com.eye.cool.install.support
 import android.content.Context
 import android.os.AsyncTask
 import com.eye.cool.install.params.Params
-import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
-import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -15,20 +13,15 @@ import java.net.URL
 /**
  *Created by cool on 2019/11/28
  */
-internal class ApkDownloader(
+internal class FileDownloader(
     private val context: Context,
     private val params: Params
 ) {
 
-  private var task: DownloadTask? = null
+  private var task: AsyncTask<String, Float, Unit>? = null
 
   fun start() {
-    if (params.downloadParams.isApkFile && DownloadUtil.checkApkDownload(context, params.downloadParams)) {
-      InstallUtil.installApk(context, params.downloadParams.downloadPath!!)
-    } else {
-      task = DownloadTask()
-      task!!.execute(params.downloadParams.downloadUrl)
-    }
+    task = DownloadTask().execute()
   }
 
   fun stop() {
@@ -37,32 +30,33 @@ internal class ApkDownloader(
 
   inner class DownloadTask : AsyncTask<String, Float, Unit>() {
 
+    private val downloadFile = params.downloadParams.composeDownloadFile(context, params.fileParams.isApk)
+
     override fun doInBackground(vararg params: String) {
-      download(params[0])
+      download()
     }
 
     override fun onProgressUpdate(vararg values: Float?) {
       val progress = values[0]!!
-      params.progressParams.progress!!.onProgress(progress)
+      params.progressParams.progress?.onProgress(progress)
     }
 
     override fun onPostExecute(result: Unit?) {
       if (!isCancelled) {
-        val apkPath = params.downloadParams.downloadPath!!
-        val handled = params.progressParams.progress!!.onFinished(apkPath)
-        if (!handled && params.downloadParams.isApkFile) {
-          InstallUtil.installApk(context, apkPath)
+        params.progressParams.progress?.onFinished(downloadFile.absolutePath)
+        if (params.fileParams.isApk) {
+          InstallUtil.installApk(context, downloadFile)
         }
       }
     }
 
-    private fun download(downloadUrl: String) {
+    private fun download() {
 
       var inputStream: InputStream? = null
       var outputStream: OutputStream? = null
       var connection: HttpURLConnection? = null
       try {
-        val url = URL(downloadUrl)
+        val url = URL(params.downloadParams.downloadUrl)
         connection = url.openConnection() as HttpURLConnection
         //  connection.requestMethod = "GET"
         connection.readTimeout = 10 * 60 * 1000
@@ -71,7 +65,7 @@ internal class ApkDownloader(
 
         if (connection.responseCode == 200) {
           inputStream = connection.inputStream
-          outputStream = FileOutputStream(params.downloadParams.downloadPath!!)
+          outputStream = FileOutputStream(downloadFile)
           val buf = ByteArray(1024)
           var len: Int
           val fileLength = connection.contentLength.toFloat() / 100f
@@ -86,7 +80,11 @@ internal class ApkDownloader(
         }
       } catch (e: Exception) {
         e.printStackTrace()
-        File(params.downloadParams.downloadPath!!).delete()
+        try {
+          downloadFile.delete()
+        } catch (e: Exception) {
+          //ignore
+        }
       } finally {
         inputStream?.close()
         outputStream?.close()

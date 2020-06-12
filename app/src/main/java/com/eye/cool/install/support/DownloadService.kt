@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.eye.cool.install.params.NotifyParams
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.InstallUtil
 import java.io.File
@@ -19,35 +20,38 @@ import java.net.URL
 /**
  *Created by ycb on 2019/11/28 0028
  */
-internal class DownloadService : IntentService("download") {
+internal class DownloadService : IntentService("Download") {
 
-  private val channelId = javaClass.simpleName
+  private val notifyIds = arrayListOf<Int>()
 
   override fun onBind(intent: Intent?): IBinder? = null
 
-  override fun onCreate() {
-    super.onCreate()
-    startNotification()
-  }
-
   override fun onHandleIntent(intent: Intent?) {
+    startNotification(intent)
     val url = intent?.getStringExtra(DOWNLOAD_URL) ?: return
     val path = intent.getStringExtra(FILE_PATH) ?: return
-    val isApkFile = intent.getBooleanExtra(APK_FILE, true)
+    val isApk = intent.getBooleanExtra(IS_APK, true)
     DownloadLog.logI("Download($url) by DownloadService...")
     download(url, path)
     DownloadLog.logI("DownloadService download($path) Finished")
-    if (isApkFile) {
+    if (isApk) {
       InstallUtil.installApk(this@DownloadService, path)
     }
   }
 
-  private fun startNotification() {
+  private fun startNotification(intent: Intent?) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+      val channelId = "install"
+      val channelName = "Download"
+      val notifyParams = intent?.getParcelableExtra<NotifyParams>(NOTIFY_PARAMS)!!
+      notifyIds.add(notifyParams.notifyId)
+
       val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-      nm.createNotificationChannel(NotificationChannel(channelId, "Download Apk", NotificationManager.IMPORTANCE_DEFAULT))
-      val builder = NotificationCompat.Builder(this, channelId)
-      startForeground(channelId.hashCode(), builder.build())
+      nm.createNotificationChannel(notifyParams.notifyChannel
+          ?: NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT))
+      val notify = notifyParams.notification ?: NotificationCompat.Builder(this, channelId).build()
+      startForeground(notifyParams.notifyId, notify)
     }
   }
 
@@ -89,7 +93,9 @@ internal class DownloadService : IntentService("download") {
   override fun onDestroy() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-      nm.cancel(channelId.hashCode())
+      notifyIds.forEach {
+        nm.cancel(it)
+      }
     }
     super.onDestroy()
   }
@@ -97,6 +103,7 @@ internal class DownloadService : IntentService("download") {
   companion object {
     const val DOWNLOAD_URL = "download_url"
     const val FILE_PATH = "file_path"
-    const val APK_FILE = "apk_file"
+    const val IS_APK = "is_apk"
+    const val NOTIFY_PARAMS = "notify_params"
   }
 }

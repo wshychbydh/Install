@@ -1,7 +1,8 @@
 package com.eye.cool.install.params
 
+import android.content.Context
 import android.view.Gravity
-import com.eye.cool.install.support.IPrompt
+import android.view.View
 import com.eye.cool.install.ui.DefaultPrompt
 
 /**
@@ -11,7 +12,7 @@ class PromptParams private constructor() {
 
   internal var title: CharSequence? = null
   internal var content: CharSequence? = null
-  internal var prompt: IPrompt = DefaultPrompt()
+  internal var prompt: IPrompt? = DefaultPrompt()
   internal var cancelAble: Boolean = false
   internal var cancelOnTouchOutside: Boolean = false
   internal var dimAmount: Float = 0.6f
@@ -51,11 +52,11 @@ class PromptParams private constructor() {
     }
 
     /**
-     * Set the prompt to display.
+     * Set the prompt to display. null will not prompt
      *
      * @return This Builder object to allow for chaining of calls to set methods
      */
-    fun setPrompt(prompt: IPrompt): Builder {
+    fun setPrompt(prompt: IPrompt?): Builder {
       params.prompt = prompt
       return this
     }
@@ -147,5 +148,38 @@ class PromptParams private constructor() {
     }
 
     fun build() = params
+  }
+
+  interface IPrompt {
+
+    /**
+     * Make a view to display.
+     * If you don't want to provide views, return null and pop-up a custom dialog then callback promptListener
+     *
+     * @param context
+     * @param title
+     * @param content
+     * @param promptListener User-selected callbacks
+     * @return The view to display or null
+     */
+    fun createView(
+        context: Context,
+        title: CharSequence?,
+        content: CharSequence?,
+        promptListener: IPromptListener
+    ): View?
+  }
+
+  interface IPromptListener {
+
+    /**
+     * User clicks cancel
+     */
+    fun onCancel()
+
+    /**
+     * User clicks upgrade
+     */
+    fun onUpgrade()
   }
 }

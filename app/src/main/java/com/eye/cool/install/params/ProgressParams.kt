@@ -1,8 +1,8 @@
 package com.eye.cool.install.params
 
 import android.view.Gravity
-import com.eye.cool.install.support.IProgress
-
+import android.view.View
+import androidx.annotation.UiThread
 /**
  *Created by ycb on 2019/11/28 0028
  */
@@ -124,5 +124,38 @@ class ProgressParams private constructor() {
     fun build(): ProgressParams {
       return params
     }
+  }
+
+  interface IProgress {
+
+    /**
+     * The progress view to be shown
+     *
+     * @return view
+     */
+    fun getProgressView(): View
+
+    /**
+     * Download started
+     */
+    @UiThread
+    fun onStart() {
+    }
+
+    /**
+     * Download progress
+     *
+     * @param progress 0~100
+     */
+    @UiThread
+    fun onProgress(progress: Float)
+
+    /**
+     * Download finished
+     *
+     * @param path the file path download completed
+     */
+    @UiThread
+    fun onFinished(path: String?)
   }
 }

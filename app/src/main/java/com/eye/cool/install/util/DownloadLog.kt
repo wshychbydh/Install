@@ -7,19 +7,19 @@ import android.util.Log
  */
 internal object DownloadLog {
 
-  private const val TAG = "download"
+  internal var tag = "download"
 
   internal var enableLog: Boolean = false
 
   fun logI(msg: String) {
     if (enableLog && msg.isNotEmpty()) {
-      Log.i(TAG, msg)
+      Log.i(tag, msg)
     }
   }
 
   fun logE(error: String) {
     if (enableLog && error.isNotEmpty()) {
-      Log.e(TAG, error)
+      Log.e(tag, error)
     }
   }
 }

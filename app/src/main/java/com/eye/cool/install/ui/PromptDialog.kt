@@ -5,13 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import com.eye.cool.install.params.PromptParams
-import com.eye.cool.install.support.IPromptListener
 
 
 /**
  *Created by ycb on 2019/12/16 0016
  */
-internal class PromptDialog : DialogActivity(), IPromptListener {
+internal class PromptDialog : DialogActivity(), PromptParams.IPromptListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -19,7 +18,7 @@ internal class PromptDialog : DialogActivity(), IPromptListener {
     setFinishOnTouchOutside(false)
 
     promptParams?.apply {
-      val view = prompt.createView(this@PromptDialog, title, content, this@PromptDialog)
+      val view = prompt?.createView(this@PromptDialog, title, content, this@PromptDialog)
       if (view != null) {
         setContentView(view)
         setupWindow(this)
@@ -81,9 +80,13 @@ internal class PromptDialog : DialogActivity(), IPromptListener {
   companion object {
 
     private var promptParams: PromptParams? = null
-    private var promptListener: IPromptListener? = null
+    private var promptListener: PromptParams.IPromptListener? = null
 
-    fun show(context: Context, promptParams: PromptParams, promptListener: IPromptListener) {
+    fun show(
+        context: Context,
+        promptParams: PromptParams,
+        promptListener: PromptParams.IPromptListener
+    ) {
       this.promptParams = promptParams
       this.promptListener = promptListener
       val intent = Intent(context, PromptDialog::class.java)

@@ -4,19 +4,18 @@ import android.app.AlertDialog
 import android.content.Context
 import android.view.View
 import com.eye.cool.install.R
-import com.eye.cool.install.support.IPrompt
-import com.eye.cool.install.support.IPromptListener
+import com.eye.cool.install.params.PromptParams
 
 /**
  *Created by ycb on 2019/12/16 0016
  */
-internal class DefaultPrompt : IPrompt {
+internal class DefaultPrompt : PromptParams.IPrompt {
 
   override fun createView(
       context: Context,
       title: CharSequence?,
       content: CharSequence?,
-      listener: IPromptListener
+      listener: PromptParams.IPromptListener
   ): View? {
     AlertDialog.Builder(context)
         .setCancelable(false)

@@ -14,7 +14,7 @@ import java.io.File
 /**
  * Created by ycb on 2019/11/28 0028
  */
-class DownloadReceiver : BroadcastReceiver() {
+internal class DownloadReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent?) {
 
     if (DownloadManager.ACTION_NOTIFICATION_CLICKED == intent?.action) {

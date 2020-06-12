@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.os.Build
-import com.eye.cool.install.params.DownloadParams
+import com.eye.cool.install.params.FileParams
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -17,10 +17,9 @@ import java.io.FileNotFoundException
  */
 object DownloadUtil {
 
-  internal fun checkApkDownload(context: Context, params: DownloadParams): Boolean {
-    val file = File(params.downloadPath ?: return false)
+  internal fun checkFileDownload(context: Context, file: File, params: FileParams): Boolean {
     if (isFileExist(context, file)) {
-      val result = isApkDownload(context, file, params)
+      val result = checkFileAttr(context, file, params)
       if (result) {
         return true
       } else {
@@ -30,26 +29,36 @@ object DownloadUtil {
     return false
   }
 
-  internal fun checkApkDownload(context: Context, file: File, params: DownloadParams): Boolean {
-    if (isFileExist(context, file)) {
-      val result = isApkDownload(context, file, params)
-      if (result) {
-        return true
-      } else {
-        file.delete()
-      }
+  private fun checkFileAttr(context: Context, file: File, params: FileParams): Boolean {
+
+    if (params.md5 != null) {
+      val md5 = MD5.getFileMD5(file)
+      DownloadLog.logI("new file md5:${params.md5}; old file md5:$md5")
+
+      return md5 == params.md5
     }
+
+    if (params.isApk) {
+      return isApkDownload(context, file, params)
+    }
+
+    if (params.length != null) {
+      val len = file.length()
+      DownloadLog.logI("new file length:${params.length}; old file length:$len")
+      return params.length == len
+    }
+
     return false
   }
 
-  private fun isApkDownload(context: Context, file: File, params: DownloadParams): Boolean {
+  private fun isApkDownload(context: Context, file: File, params: FileParams): Boolean {
     if (params.versionCode <= 0 || params.versionName.isNullOrEmpty()) return false
     try {
       val packageManager = context.packageManager
       val packageInfo = packageManager.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_ACTIVITIES)
       if (packageInfo != null) {
-        DownloadLog.logI("old download apk-->${packageInfo.packageName} : ${packageInfo.versionCode} ; ${packageInfo.versionName}")
-        DownloadLog.logI("new download apk-->${context.packageName} : ${params.versionCode} ; ${params.versionName}")
+        DownloadLog.logI("old apk-->packageName:${packageInfo.packageName}; versionCode:${packageInfo.versionCode}; versionName:${packageInfo.versionName}")
+        DownloadLog.logI("new apk-->packageName:${context.packageName}; versionCode:${params.versionCode}; versionName:${params.versionName}")
         return packageInfo.versionCode == params.versionCode
             && packageInfo.versionName == params.versionName
             && packageInfo.packageName == context.packageName

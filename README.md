@@ -33,7 +33,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.1.0'
+        implementation 'com.github.wshychbydh:install:1.1.1'
     }
 ```
 
@@ -47,7 +47,7 @@
 ```
 报其他类似的重复错误时，添加方式同上。
 
-2)、该工具类已提供运行时权限申请，提供7.0以上文件访问权限，无需再额外添加
+2)、该工具类已提供运行时权限申请，提供7.0及以上默认路径(Download)的文件访问权限，无需再额外添加
 
 ### 示例：
 
@@ -69,10 +69,19 @@
    val downloadParams = DownloadParams.Builder()
         .setDownloadUrl(downloadUrl)                  //(必填) 将要下载的apk网络地址
         .setDownloadPath(downloadPath)                //(可选) 目录或绝对路径。apk本地存放地址，默认Environment.DIRECTORY_DOWNLOADS下，若是其他路径可能需添加相应权限
-        .setDownloadFileName(name)                    //(可选) 如果downloadPath是目录，将拼接该文件名
+        .setDownloadExternalDir(dirType, subPath)     //(可选) 使用DownloadManager下载时的路径，默认Environment.DIRECTORY_DOWNLOADS
+        .setRequest(DownloadManager.Request)          //(可选) 自定义DownloadManger.Request
+        .useDownloadManager(Boolean)                  //(可选) 后台下载时是否使用DownloadManager下载，默认true
+        .forceUpdate(Boolean)                         //(可选) 是否强制升级，默认false
+        .repeatDownload(Boolean)                      //(可选) 是否重复下载，默认false
+        .build()
+
+   //当downloadParams.repeateDownlaod为false的时候配置不重复下载条件
+   val fileParams = FileParams.Builder()
         .isApkFile(isApkFile)                         //(可选) 下载的文件是否为apk，默认true，若是apk将会触发自动安装
-        .setVersion(versionCode, versionName)         //(可选) 将要下载的apk版本信息，若不填每次都会重新去下载
-        .setDownloadExternalPubDir(dirType, subPath)  //(可选) 使用DownloadManager下载时的路径,默认Environment.DIRECTORY_DOWNLOADS
+        .setVersion(versionCode, versionName)         //(可选) 将要下载的apk版本信息
+        .setLength(versionCode, versionName)          //(可选) 将要下载的文件长度，若与已下载的文件长度一致将不重复下载
+        .setMD5(versionCode, versionName)             //(可选) 将要下载的文件md5值，若与已下载的文件md5一致将不重复下载
         .build()
 
    val progressParams = ProgressParams.Builder()
@@ -86,14 +95,22 @@
         .progress(progress)                           //(可选) 自定义进度框
         .build()
 
+   //当系统版本>=8.0时，将后台服务变为前台服务
+   val notifyParams = NotifyParams.Builder()
+        .setNotifyId(x, y)                            //(可选) 通知id
+        .setNotificationChannel(width, height)        //(可选) 自定义通知通道
+        .setNotification(cancelAble)                  //(可选) 自定义通知
+        .build()
+
    val params = Params.Builder()
         .setDownloadParams(downloadParams)            //(必填) 构建下载参数
         .setProgressParams(progressParams)            //(可选) 构建进度框参数
         .setPromptParams(promptParams)                //(可选) 构建提示框参数
+        .setFileParams(promptParams)                  //(可选) 构建下载文件参数
+        .setNotifyParams(promptParams)                //(可选) 构建通知参数
         .setAuthority(String)                         //(可选) 自定下载路径时，需设置临时授权路径，默认已授权external/Download
         .enableLog(Boolean)                           //(可选) 开启日志打印，默认false
-        .useDownloadManager(Boolean)                  //(可选) 后台下载时是否使用DownloadManager下载，默认true
-        .forceUpdate(Boolean)                         //(可选) 是否强制升级，默认false
+        .setLogTag(String)                            //(可选) 自定义日志标识，默认download
         .setPermissionInvoker(PermissionInvoker)      //(可选) 自定义请求存储权限
         .setSettingInvoker(SettingInvoker)            //(可选) 自定义引导安装未知应用权限设置框
         .build() 

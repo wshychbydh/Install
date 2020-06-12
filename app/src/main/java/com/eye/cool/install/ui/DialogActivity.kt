@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 /**
  *Created by ycb on 2019/12/16 0016
  */
-abstract class DialogActivity : AppCompatActivity() {
+internal abstract class DialogActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
