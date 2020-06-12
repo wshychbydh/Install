@@ -69,6 +69,8 @@ class ProgressParams private constructor() {
     /**
      * The maximum duration of time the progress dialog displays
      *
+     * The download will not be cancelled after timeout
+     *
      * @param timeout default 10 minutes
      */
     fun progressTimeout(timeout: Long): Builder {

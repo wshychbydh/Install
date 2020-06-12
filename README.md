@@ -96,7 +96,9 @@
         .dimAmount(dimAmount)                         //(可选) 进度框出现时，背景灰度，默认0
         .gravity(gravity)                             //(可选) 对齐方式，默认Gravity.Center
         .windowAnim(windowAnim)                       //(可选) 进度框window动画，默认无
-        .progress(progress)                           //(可选) 自定义进度框
+        .progressListener(listener)                   //(可选) 监听下载
+        .progressView(view)                           //(可选) 自定义view
+        .progressTimeout(Long)                        //(可选) 进度框加载超时时长，超时后不会取消下载任务，默认10分钟
         .build()
 
    //当系统版本>=8.0时，将后台服务变为前台服务
