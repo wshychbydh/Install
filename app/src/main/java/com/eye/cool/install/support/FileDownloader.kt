@@ -3,6 +3,7 @@ package com.eye.cool.install.support
 import android.content.Context
 import android.os.AsyncTask
 import com.eye.cool.install.params.Params
+import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.util.InstallUtil
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -15,7 +16,8 @@ import java.net.URL
  */
 internal class FileDownloader(
     private val context: Context,
-    private val params: Params
+    private val params: Params,
+    private val defaultProgress: ProgressParams.IProgressListener? = null
 ) {
 
   private var task: AsyncTask<String, Float, Unit>? = null
@@ -38,12 +40,14 @@ internal class FileDownloader(
 
     override fun onProgressUpdate(vararg values: Float?) {
       val progress = values[0]!!
-      params.progressParams.progress?.onProgress(progress)
+      defaultProgress?.onProgress(progress)
+      params.progressParams.progressListener?.onProgress(progress)
     }
 
     override fun onPostExecute(result: Unit?) {
       if (!isCancelled) {
-        params.progressParams.progress?.onFinished(downloadFile.absolutePath)
+        defaultProgress?.onFinished(downloadFile.absolutePath)
+        params.progressParams.progressListener?.onFinished(downloadFile.absolutePath)
         if (params.fileParams.isApk) {
           InstallUtil.installApk(context, downloadFile)
         }

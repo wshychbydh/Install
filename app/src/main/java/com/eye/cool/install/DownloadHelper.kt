@@ -68,6 +68,12 @@ class DownloadHelper {
         return false
       }
     }
+
+    if (downloadParams.forceDownload && DownloadProgressDialog.params != null) {
+      DownloadLog.logE("Only one mandatory download task is supported")
+      return false
+    }
+
     return true
   }
 
@@ -160,6 +166,11 @@ class DownloadHelper {
         }
         return
       }
+    }
+
+    if (downloadParams.forceDownload && DownloadProgressDialog.params != null) {
+      DownloadLog.logE("Only one mandatory download task is supported")
+      return
     }
 
     if (downloadParams.useDownloadManager) {

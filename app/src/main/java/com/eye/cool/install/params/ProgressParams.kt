@@ -3,12 +3,15 @@ package com.eye.cool.install.params
 import android.view.Gravity
 import android.view.View
 import androidx.annotation.UiThread
+
 /**
  *Created by ycb on 2019/11/28 0028
  */
 class ProgressParams private constructor() {
 
-  internal var progress: IProgress? = null
+  internal var progressView: View? = null
+  internal var progressListener: IProgressListener? = null
+  internal var progressTimeout: Long = 10 * 60 * 1000L
   internal var cancelAble: Boolean = false
   internal var cancelOnTouchOutside: Boolean = false
   internal var dimAmount: Float = 0.6f
@@ -44,12 +47,32 @@ class ProgressParams private constructor() {
     }
 
     /**
-     * If you want to customize the progress dialog, set it
+     * Download listener
      *
-     * @param progress
+     * @param progressListener
      */
-    fun progress(progress: IProgress): Builder {
-      params.progress = progress
+    fun progress(progressListener: IProgressListener): Builder {
+      params.progressListener = progressListener
+      return this
+    }
+
+    /**
+     * The progress view to be shown
+     *
+     * @param view
+     */
+    fun progressView(view: View): Builder {
+      params.progressView = view
+      return this
+    }
+
+    /**
+     * The maximum duration of time the progress dialog displays
+     *
+     * @param timeout default 10 minutes
+     */
+    fun progressTimeout(timeout: Long): Builder {
+      params.progressTimeout = timeout
       return this
     }
 
@@ -126,21 +149,13 @@ class ProgressParams private constructor() {
     }
   }
 
-  interface IProgress {
-
-    /**
-     * The progress view to be shown
-     *
-     * @return view
-     */
-    fun getProgressView(): View
+  interface IProgressListener {
 
     /**
      * Download started
      */
     @UiThread
-    fun onStart() {
-    }
+    fun onStart()
 
     /**
      * Download progress
