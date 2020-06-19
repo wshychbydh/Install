@@ -41,13 +41,13 @@ internal class FileDownloader(
     override fun onProgressUpdate(vararg values: Float?) {
       val progress = values[0]!!
       defaultProgress?.onProgress(progress)
-      params.progressParams.progressListener?.onProgress(progress)
+      params.progressParams.listener?.onProgress(progress)
     }
 
     override fun onPostExecute(result: Unit?) {
       if (!isCancelled) {
         defaultProgress?.onFinished(downloadFile.absolutePath)
-        params.progressParams.progressListener?.onFinished(downloadFile.absolutePath)
+        params.progressParams.listener?.onFinished(downloadFile.absolutePath)
         if (params.fileParams.isApk) {
           InstallUtil.installApk(context, downloadFile)
         }

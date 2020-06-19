@@ -63,7 +63,7 @@ internal class DownloadProgressDialog : DialogActivity() {
       downloadId = intent.getLongExtra(DOWNLOAD_ID, -1)
       DownloadLog.logE("Download id :$downloadId")
       if (downloadId > 0L) {
-        progressParams.progressListener?.onStart()
+        progressParams.listener?.onStart()
         countDownTimer = DownloadCountDown(progressParams.progressTimeout) { time ->
           GlobalScope.launch {
             queryDownloadStatus()
@@ -71,7 +71,7 @@ internal class DownloadProgressDialog : DialogActivity() {
         }.start()
       }
     } else {
-      progressParams.progressListener?.onStart()
+      progressParams.listener?.onStart()
       apkDownloader = FileDownloader(this, params!!, defaultProgress)
       apkDownloader!!.start()
     }
@@ -95,14 +95,14 @@ internal class DownloadProgressDialog : DialogActivity() {
         val info = SharedHelper.getDownloadById(this, downloadId)
         val path = info?.path ?: InstallUtil.queryFileByDownloadId(this, downloadId)
         withContext(Dispatchers.Main) {
-          progressParams.progressListener?.onFinished(path)
+          progressParams.listener?.onFinished(path)
         }
         finish()
       }
       else -> {
         withContext(Dispatchers.Main) {
           defaultProgress?.onProgress(progress)
-          progressParams.progressListener?.onProgress(progress)
+          progressParams.listener?.onProgress(progress)
         }
       }
     }

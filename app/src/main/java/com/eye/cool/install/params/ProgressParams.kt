@@ -10,7 +10,7 @@ import androidx.annotation.UiThread
 class ProgressParams private constructor() {
 
   internal var progressView: View? = null
-  internal var progressListener: IProgressListener? = null
+  internal var listener: IProgressListener? = null
   internal var progressTimeout: Long = 10 * 60 * 1000L
   internal var cancelAble: Boolean = false
   internal var cancelOnTouchOutside: Boolean = false
@@ -49,10 +49,10 @@ class ProgressParams private constructor() {
     /**
      * Download listener
      *
-     * @param progressListener
+     * @param listener
      */
-    fun progress(progressListener: IProgressListener): Builder {
-      params.progressListener = progressListener
+    fun progress(listener: IProgressListener): Builder {
+      params.listener = listener
       return this
     }
 
