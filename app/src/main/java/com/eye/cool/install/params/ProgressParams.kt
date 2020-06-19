@@ -125,7 +125,7 @@ class ProgressParams private constructor() {
     /**
      * The size of the progress dialog
      *
-     * @param width default 260dp
+     * @param width default match_parent, min_width 260dp
      * @param height default 80dp
      */
     fun size(width: Int, height: Int): Builder {

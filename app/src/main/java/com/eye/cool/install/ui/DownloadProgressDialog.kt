@@ -171,7 +171,7 @@ internal class DownloadProgressDialog : DialogActivity() {
   }
 
   inner class DownloadCountDown(
-      val duration: Long,
+      duration: Long,
       private val onTick: (Long) -> Unit
   ) : CountDownTimer(duration, 500L) {
     override fun onFinish() {

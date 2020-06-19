@@ -126,7 +126,7 @@ class PromptParams private constructor() {
     /**
      * The size of the progress dialog
      *
-     * @param width default 80%
+     * @param width default match_parent
      * @param height default wrap_content
      */
     fun size(width: Int, height: Int): Builder {

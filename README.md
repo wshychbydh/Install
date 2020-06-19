@@ -59,7 +59,7 @@
 ```
    val promptParams = PromptParams.Builder()           
         .setCoordinate(x, y)                          //(可选) 提示框显示的x,y坐标
-        .size(width, height)                          //(可选) 提示框大小，默认80%屏宽
+        .size(width, height)                          //(可选) 提示框大小，默认100%屏宽
         .cancelAble(cancelAble)                       //(可选) 提示框是否可按返回键取消，默认false
         .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 提示框是否在点击区域外取消，默认false
         .dimAmount(dimAmount)                         //(可选) 提示框出现时，背景灰度，默认0
