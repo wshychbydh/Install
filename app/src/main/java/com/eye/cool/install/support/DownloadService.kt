@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.eye.cool.install.params.NotifyParams
 import com.eye.cool.install.util.DownloadLog
@@ -41,18 +42,22 @@ internal class DownloadService : IntentService("Download") {
 
   private fun startNotification(intent: Intent?) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-      val channelId = "install"
-      val channelName = "Download"
       val notifyParams = intent?.getParcelableExtra<NotifyParams>(NOTIFY_PARAMS)!!
       notifyIds.add(notifyParams.notifyId)
-
       val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
       nm.createNotificationChannel(notifyParams.notifyChannel
-          ?: NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT))
-      val notify = notifyParams.notification ?: NotificationCompat.Builder(this, channelId).build()
+          ?: getDefaultChannel(notifyParams.channelId))
+      val notify = notifyParams.notification
+          ?: NotificationCompat.Builder(this, notifyParams.channelId).build()
       startForeground(notifyParams.notifyId, notify)
     }
+  }
+
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun getDefaultChannel(channelId: String): NotificationChannel {
+    val appInfo = packageManager.getApplicationInfo(packageName, 0)
+    val channelName = packageManager.getApplicationLabel(appInfo) as? String ?: "Download"
+    return NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
   }
 
   private fun download(url: String, path: String) {

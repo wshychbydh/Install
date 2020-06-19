@@ -2,6 +2,7 @@ package com.eye.cool.install.params
 
 import android.annotation.TargetApi
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  *Created by ycb on 2019/11/28 0028
@@ -17,6 +18,7 @@ class Params private constructor() {
   internal var downloadParams: DownloadParams = DownloadParams.Builder().build()
   internal var progressParams: ProgressParams = ProgressParams.Builder().build()
   internal var fileParams: FileParams = FileParams.Builder().build()
+  @RequiresApi(Build.VERSION_CODES.O)
   internal var notifyParams: NotifyParams = NotifyParams.Builder().build()
 
   class Builder {
@@ -119,6 +121,7 @@ class Params private constructor() {
      *
      * @param notifyParams
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setNotifyParams(notifyParams: NotifyParams): Builder {
       params.notifyParams = notifyParams
       return this

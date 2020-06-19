@@ -24,7 +24,7 @@ class PromptParams private constructor() {
   internal var y: Int = -1
 
   fun isValid(): Boolean {
-    return (!title.isNullOrEmpty() || !content.isNullOrEmpty()) && prompt != null
+    return (!title.isNullOrEmpty() || !content.isNullOrEmpty()) || prompt != null
   }
 
   class Builder {
@@ -159,14 +159,14 @@ class PromptParams private constructor() {
      * @param context
      * @param title
      * @param content
-     * @param promptListener User-selected callbacks
+     * @param listener User-selected callbacks
      * @return The view to display or null
      */
     fun createView(
         context: Context,
         title: CharSequence?,
         content: CharSequence?,
-        promptListener: IPromptListener
+        listener: IPromptListener
     ): View?
   }
 

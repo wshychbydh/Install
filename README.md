@@ -35,7 +35,7 @@
 2、在项目的build.gradle中添加依赖
 ```
     dependencies {
-        implementation 'com.github.wshychbydh:install:1.1.2'
+        implementation 'com.github.wshychbydh:install:1.1.3'
     }
 ```
 
@@ -103,7 +103,8 @@
 
    //当系统版本>=8.0时，将后台服务变为前台服务
    val notifyParams = NotifyParams.Builder()
-        .setNotifyId(x, y)                            //(可选) 通知id
+        .setNotifyId(Int)                             //(可选) 通知id
+        .setChannelId(String)                         //(可选) 通知渠道id
         .setNotificationChannel(width, height)        //(可选) 自定义通知通道
         .setNotification(cancelAble)                  //(可选) 自定义通知
         .build()

@@ -14,10 +14,11 @@ import androidx.annotation.RequiresApi
 class NotifyParams private constructor() : Parcelable {
 
   internal var notifyId: Int = "install".hashCode()
+  internal var channelId: String = "install"
   internal var notifyChannel: NotificationChannel? = null
   internal var notification: Notification? = null
 
-
+  @RequiresApi(Build.VERSION_CODES.O)
   class Builder {
     private val params = NotifyParams()
 
@@ -28,6 +29,16 @@ class NotifyParams private constructor() : Parcelable {
      */
     fun setNotifyId(notifyId: Int): Builder {
       params.notifyId = notifyId
+      return this
+    }
+
+    /**
+     * {@link NotificationChannel#ChannelId and Notification#ChannelId}
+     *
+     * @param channelId The constructed Notification will be posted on this NotificationChannel.
+     */
+    fun setChannelId(channelId: String): Builder {
+      params.channelId = channelId
       return this
     }
 
