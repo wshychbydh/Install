@@ -103,9 +103,8 @@ object InstallUtil {
   @JvmStatic
   fun queryFileByDownloadId(context: Context, downloadId: Long): String? {
     val path = queryPathByDownloadId(context, downloadId)
-    if (path.isNullOrEmpty()) return queryFilePathByDownloadId(context, downloadId)
 
-    if (DownloadUtil.isFileExist(context, convertPath(path))) {
+    if (!path.isNullOrEmpty() && DownloadUtil.isFileExist(context, convertPath(path))) {
       return path
     }
     return queryFilePathByDownloadId(context, downloadId)
@@ -114,7 +113,7 @@ object InstallUtil {
   private fun queryFilePathByDownloadId(context: Context, downloadId: Long): String? {
     if (downloadId < 0) return null
     val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    val uri = manager.getUriForDownloadedFile(downloadId)
+    val uri = manager.getUriForDownloadedFile(downloadId) ?: return null
     val projection = arrayOf(MediaStore.Downloads.DATA)
     val cr = context.contentResolver.query(uri, projection, null, null, null) ?: return null
     cr.use { c ->
