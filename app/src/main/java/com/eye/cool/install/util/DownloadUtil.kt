@@ -9,8 +9,12 @@ import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.os.Build
 import com.eye.cool.install.params.FileParams
-import java.io.File
-import java.io.FileNotFoundException
+import java.io.*
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Created by ycb on 2019/11/28

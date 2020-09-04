@@ -17,10 +17,7 @@ import com.eye.cool.install.support.FileDownloader
 import com.eye.cool.install.support.SharedHelper
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.InstallUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
 
@@ -46,7 +43,7 @@ internal class DownloadProgressDialog : DialogActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    progressParams = params!!.progressParams
+    progressParams = sParams!!.progressParams
 
     setFinishOnTouchOutside(progressParams.cancelOnTouchOutside)
 
@@ -59,12 +56,12 @@ internal class DownloadProgressDialog : DialogActivity() {
 
     setContentView(progressView)
     setupWindow(progressParams)
-    if (params!!.downloadParams.useDownloadManager) {
+    if (sParams!!.downloadParams.useDownloadManager) {
       downloadId = intent.getLongExtra(DOWNLOAD_ID, -1)
       DownloadLog.logE("Download id :$downloadId")
       if (downloadId > 0L) {
         progressParams.listener?.onStart()
-        countDownTimer = DownloadCountDown(progressParams.progressTimeout) { time ->
+        countDownTimer = DownloadCountDown(progressParams.progressTimeout) {
           GlobalScope.launch {
             queryDownloadStatus()
           }
@@ -72,7 +69,7 @@ internal class DownloadProgressDialog : DialogActivity() {
       }
     } else {
       progressParams.listener?.onStart()
-      apkDownloader = FileDownloader(this, params!!, defaultProgress)
+      apkDownloader = FileDownloader(this, sParams!!, defaultProgress)
       apkDownloader!!.start()
     }
   }
@@ -135,29 +132,26 @@ internal class DownloadProgressDialog : DialogActivity() {
   }
 
   override fun onBackPressed() {
-    if (params!!.progressParams.cancelAble) {
+    if (sParams!!.progressParams.cancelAble) {
       super.onBackPressed()
     }
   }
 
   override fun finish() {
-    countDownTimer?.cancel()
-    countDownTimer = null
     super.finish()
     overridePendingTransition(0, 0)
   }
 
   override fun onDestroy() {
-    apkDownloader?.stop()
-    params = null
     countDownTimer?.cancel()
+    sParams = null
     super.onDestroy()
   }
 
   companion object {
 
     @Volatile
-    internal var params: Params? = null
+    internal var sParams: Params? = null
 
     private const val DOWNLOAD_ID = "download_id"
 
@@ -166,7 +160,7 @@ internal class DownloadProgressDialog : DialogActivity() {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       intent.putExtra(DOWNLOAD_ID, downloadId)
       context.startActivity(intent)
-      this.params = params
+      this.sParams = params
     }
   }
 

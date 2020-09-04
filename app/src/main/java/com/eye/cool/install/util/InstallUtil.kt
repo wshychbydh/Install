@@ -115,8 +115,9 @@ object InstallUtil {
     val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     val uri = manager.getUriForDownloadedFile(downloadId) ?: return null
     val projection = arrayOf(MediaStore.Downloads.DATA)
-    val cr = context.contentResolver.query(uri, projection, null, null, null) ?: return null
-    cr.use { c ->
+    context.contentResolver.query(
+        uri, projection, null, null, null
+    ) ?.use { c ->
       if (c.moveToFirst()) {
         val index = c.getColumnIndexOrThrow(MediaStore.Downloads.DATA)
         if (index > -1) {
@@ -133,10 +134,9 @@ object InstallUtil {
       val query = DownloadManager.Query()
       query.setFilterById(downloadId)
       query.setFilterByStatus(DownloadManager.STATUS_SUCCESSFUL)
-      val cur: Cursor = downloader.query(query) ?: return null
-      cur.use { c ->
+      downloader.query(query) ?.use { c ->
         if (c.moveToFirst()) {
-          return c.getString(cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
+          return c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
         }
       }
     }

@@ -18,7 +18,6 @@ class NotifyParams private constructor() : Parcelable {
   internal var notifyChannel: NotificationChannel? = null
   internal var notification: Notification? = null
 
-  @RequiresApi(Build.VERSION_CODES.O)
   class Builder {
     private val params = NotifyParams()
 

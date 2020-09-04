@@ -55,7 +55,6 @@ class DownloadHelper {
   fun start() {
     GlobalScope.launch {
       if (!checkParams()) return@launch
-
       tryShowPrompt()
     }
   }
@@ -69,7 +68,7 @@ class DownloadHelper {
       }
     }
 
-    if (downloadParams.forceDownload && DownloadProgressDialog.params != null) {
+    if (downloadParams.forceDownload && DownloadProgressDialog.sParams != null) {
       DownloadLog.logE("Only one mandatory download task is supported")
       return false
     }
@@ -168,7 +167,7 @@ class DownloadHelper {
       }
     }
 
-    if (downloadParams.forceDownload && DownloadProgressDialog.params != null) {
+    if (downloadParams.forceDownload && DownloadProgressDialog.sParams != null) {
       DownloadLog.logE("Only one mandatory download task is supported")
       return
     }

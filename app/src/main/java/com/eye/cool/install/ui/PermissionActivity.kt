@@ -31,7 +31,11 @@ internal class PermissionActivity : Activity() {
     return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event)
   }
 
-  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+  override fun onRequestPermissionsResult(
+      requestCode: Int,
+      permissions: Array<out String>,
+      grantResults: IntArray
+  ) {
     if (requestCode == REQUEST_PERMISSION_CODE) {
       val denied = grantResults.filter { it == PackageManager.PERMISSION_DENIED }
       sRequestPermissionListener?.invoke(denied.isEmpty())
@@ -52,7 +56,11 @@ internal class PermissionActivity : Activity() {
     private var sRequestPermissionListener: ((Boolean) -> Unit)? = null
 
     @TargetApi(Build.VERSION_CODES.M)
-    fun requestPermission(context: Context, permissions: Array<String>, callback: ((Boolean) -> Unit)? = null) {
+    fun requestPermission(
+        context: Context,
+        permissions: Array<String>,
+        callback: ((Boolean) -> Unit)? = null
+    ) {
       sRequestPermissionListener = callback
       val intent = Intent(context, PermissionActivity::class.java)
       intent.putExtra(REQUEST_PERMISSIONS, permissions)
@@ -67,7 +75,11 @@ internal class PermissionActivity : Activity() {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         val window = activity.window
         val decorView = window.decorView
-        decorView.systemUiVisibility = (decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+        decorView.systemUiVisibility = (
+            decorView.systemUiVisibility
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            )
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = Color.TRANSPARENT
       }

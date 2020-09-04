@@ -3,6 +3,8 @@ package com.eye.cool.install.support
 import android.app.IntentService
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -11,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import com.eye.cool.install.params.NotifyParams
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.InstallUtil
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -33,10 +36,11 @@ internal class DownloadService : IntentService("Download") {
     val path = intent.getStringExtra(FILE_PATH) ?: return
     val isApk = intent.getBooleanExtra(IS_APK, true)
     DownloadLog.logI("Download($url) by DownloadService...")
-    download(url, path)
+    val downloadFile = File(path)
+    download(url, downloadFile)
     DownloadLog.logI("DownloadService download($path) Finished")
-    if (isApk) {
-      InstallUtil.installApk(this@DownloadService, path)
+    if (isApk && downloadFile.exists()) {
+      InstallUtil.installApk(this@DownloadService, downloadFile)
     }
   }
 
@@ -60,7 +64,10 @@ internal class DownloadService : IntentService("Download") {
     return NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
   }
 
-  private fun download(url: String, path: String) {
+  private fun download(
+      url: String,
+      downloadFile: File
+  ) {
     var inputStream: InputStream? = null
     var outputStream: OutputStream? = null
     var connection: HttpURLConnection? = null
@@ -74,20 +81,18 @@ internal class DownloadService : IntentService("Download") {
 
       if (connection.responseCode == 200) {
         inputStream = connection.inputStream
-        outputStream = FileOutputStream(path)
-        val buf = ByteArray(1024)
+        outputStream = FileOutputStream(downloadFile)
+        val buf = ByteArray(4096)
         var len: Int
-        var readLength = 0
         do {
           len = inputStream.read(buf)
           if (len <= 0) break
-          readLength += len
           outputStream.write(buf, 0, len)
         } while (len > -1)
       }
     } catch (e: Exception) {
       e.printStackTrace()
-      File(path).delete()
+      downloadFile.delete()
     } finally {
       inputStream?.close()
       outputStream?.close()
