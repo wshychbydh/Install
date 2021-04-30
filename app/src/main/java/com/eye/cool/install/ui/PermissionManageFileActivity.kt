@@ -4,10 +4,11 @@ import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -15,32 +16,26 @@ import com.eye.cool.install.support.complete
 import kotlinx.coroutines.CancellableContinuation
 
 /**
- * Request permissions.
- * Created cool on 2018/4/16.
+ *Created by ycb on 2021/1/22
  */
-@TargetApi(Build.VERSION_CODES.M)
-internal class PermissionActivity : Activity() {
+@TargetApi(Build.VERSION_CODES.R)
+internal class PermissionManageFileActivity : Activity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
     invasionStatusBar(this)
-    val permissions = intent.getStringArrayExtra(REQUEST_PERMISSIONS)!!
-    requestPermissions(permissions, REQUEST_PERMISSION_CODE)
+    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+    startActivityForResult(intent, REQUEST_FILE_SETTING_CODE)
   }
 
   override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
     return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event)
   }
 
-  override fun onRequestPermissionsResult(
-      requestCode: Int,
-      permissions: Array<out String>,
-      grantResults: IntArray
-  ) {
-    if (requestCode == REQUEST_PERMISSION_CODE) {
-      val denied = grantResults.filter { it == PackageManager.PERMISSION_DENIED }
-      sRequestPermissionListener?.complete(denied.isEmpty())
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    if (requestCode == REQUEST_FILE_SETTING_CODE) {
+      sRequestPermissionListener?.complete(Environment.isExternalStorageManager())
     }
     finish()
   }
@@ -51,21 +46,15 @@ internal class PermissionActivity : Activity() {
   }
 
   companion object {
-
-    private const val REQUEST_PERMISSION_CODE = 3001
-    private const val REQUEST_PERMISSIONS = "request_permissions"
-
+    private const val REQUEST_FILE_SETTING_CODE = 7012
     private var sRequestPermissionListener: CancellableContinuation<Boolean>? = null
 
-    @TargetApi(Build.VERSION_CODES.M)
     fun request(
         context: Context,
-        permissions: Array<String>,
         callback: CancellableContinuation<Boolean>
     ) {
       sRequestPermissionListener = callback
-      val intent = Intent(context, PermissionActivity::class.java)
-      intent.putExtra(REQUEST_PERMISSIONS, permissions)
+      val intent = Intent(context, PermissionManageFileActivity::class.java)
       intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
       context.startActivity(intent)
     }

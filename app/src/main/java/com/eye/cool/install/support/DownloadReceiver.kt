@@ -7,7 +7,9 @@ import android.content.Intent
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -22,7 +24,7 @@ internal class DownloadReceiver : BroadcastReceiver() {
       DownloadUtil.toDownloadPage(context)
 
     } else if (DownloadManager.ACTION_DOWNLOAD_COMPLETE == intent?.action) {
-      GlobalScope.launch {
+      MainScope().launch(Dispatchers.Default) {
 
         val currentDownloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
 
@@ -33,18 +35,16 @@ internal class DownloadReceiver : BroadcastReceiver() {
 
         if (!downloadInfo.isApk) return@launch
 
-        DownloadLog.logI("DownloadId：$currentDownloadId, isApk:${downloadInfo.isApk}, path:${downloadInfo.path}")
+        val path = InstallUtil.queryFileByDownloadId(context, currentDownloadId) ?: return@launch
 
-        if (DownloadUtil.isFileExist(context, downloadInfo.path)) {
-          InstallUtil.installApk(context, File(downloadInfo.path))
+        DownloadLog.logI("DownloadId：$currentDownloadId, isApk:${downloadInfo.isApk}, path:$path")
+
+        if (DownloadUtil.isFileExist(context, path)) {
+          InstallUtil.installApk(context, File(path))
         } else {
           InstallUtil.installApk(context, currentDownloadId)
         }
       }
     }
-  }
-
-  companion object {
-    const val DOWNLOAD = "download"
   }
 }

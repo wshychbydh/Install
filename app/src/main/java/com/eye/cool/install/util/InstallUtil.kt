@@ -4,7 +4,7 @@ import android.annotation.TargetApi
 import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -12,14 +12,22 @@ import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
 import com.eye.cool.install.DownloadHelper
 import com.eye.cool.install.ui.InstallPermissionActivity
-import com.eye.cool.install.ui.PermissionActivity
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
+import java.lang.Exception
 
 
 /**
  *Created by ycb on 2019/11/25 0025
  */
 object InstallUtil {
+
+  fun isApk(context: Context, path: String): Boolean {
+    val pkgInfo = context.packageManager
+        .getPackageArchiveInfo(path, PackageManager.GET_ACTIVITIES) ?: return false
+    return !pkgInfo.applicationInfo.packageName.isNullOrEmpty()
+  }
 
   @WorkerThread
   @JvmStatic
@@ -51,6 +59,7 @@ object InstallUtil {
 
   @JvmStatic
   fun installApk(context: Context, apkFile: File) {
+    if (!isApk(context, apkFile.absolutePath)) return
     when {
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
         installAboveO(context, apkFile)
@@ -70,11 +79,13 @@ object InstallUtil {
     if (hasPermission) {
       installBetweenNAndO(context, apkFile)
     } else {
-      InstallPermissionActivity.requestInstallPermission(context) {
-        if (it) {
+      GlobalScope.launch {
+        val result = InstallPermissionActivity.requestInstallPermission(context)
+        if (result) {
           installBetweenNAndO(context, apkFile)
         } else {
-          DownloadLog.logE("Install failed, because of the permission of 'android.permission.REQUEST_INSTALL_PACKAGES' is denied!")
+          DownloadLog.logE("Install failed, because of the permission of " +
+              "'android.permission.REQUEST_INSTALL_PACKAGES' is denied!")
         }
       }
     }
@@ -84,9 +95,13 @@ object InstallUtil {
     DownloadLog.logI("Install apk file-->${apkFile.absolutePath}")
     val intent = Intent(Intent.ACTION_VIEW)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    val authority = DownloadHelper.authority ?: "${context.packageName}.apk.FileProvider"
-    val uri = FileProvider.getUriForFile(context, authority, apkFile)
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    val uri = try {
+      val authority = DownloadHelper.authority ?: "${context.packageName}.apk.FileProvider"
+      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+      FileProvider.getUriForFile(context, authority, apkFile)
+    } catch (e: Exception) {
+      Uri.parse(apkFile.absolutePath)
+    }
     intent.setDataAndType(uri, "application/vnd.android.package-archive")
     context.startActivity(intent)
   }
@@ -117,7 +132,7 @@ object InstallUtil {
     val projection = arrayOf(MediaStore.Downloads.DATA)
     context.contentResolver.query(
         uri, projection, null, null, null
-    ) ?.use { c ->
+    )?.use { c ->
       if (c.moveToFirst()) {
         val index = c.getColumnIndexOrThrow(MediaStore.Downloads.DATA)
         if (index > -1) {
@@ -134,7 +149,7 @@ object InstallUtil {
       val query = DownloadManager.Query()
       query.setFilterById(downloadId)
       query.setFilterByStatus(DownloadManager.STATUS_SUCCESSFUL)
-      downloader.query(query) ?.use { c ->
+      downloader.query(query)?.use { c ->
         if (c.moveToFirst()) {
           return c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
         }

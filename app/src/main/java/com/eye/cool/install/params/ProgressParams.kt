@@ -39,7 +39,7 @@ class ProgressParams private constructor() {
      * {@link Gravity#applyDisplay(int, android.graphics.Rect, android.graphics.Rect)
      * Gravity.applyDisplay}.
      *
-     * @see Gravity
+     * @see [Gravity]
      */
     fun gravity(gravity: Int): Builder {
       params.gravity = gravity
@@ -49,7 +49,7 @@ class ProgressParams private constructor() {
     /**
      * Download listener
      *
-     * @param listener
+     * @param [listener]
      */
     fun progress(listener: IProgressListener): Builder {
       params.listener = listener
@@ -59,7 +59,7 @@ class ProgressParams private constructor() {
     /**
      * The progress view to be shown
      *
-     * @param view
+     * @param [view]
      */
     fun progressView(view: View): Builder {
       params.progressView = view
@@ -71,7 +71,7 @@ class ProgressParams private constructor() {
      *
      * The download will not be cancelled after timeout
      *
-     * @param timeout default 10 minutes
+     * @param [timeout] default 10 minutes
      */
     fun progressTimeout(timeout: Long): Builder {
       params.progressTimeout = timeout
@@ -82,7 +82,7 @@ class ProgressParams private constructor() {
      * Sets whether this dialog is dismissed when onBackPressed().
      * Only dismiss dialog, never stop task
      *
-     * @param cancelAble default false
+     * @param [cancelAble] default false
      */
     fun cancelAble(cancelAble: Boolean): Builder {
       params.cancelAble = cancelAble
@@ -93,7 +93,7 @@ class ProgressParams private constructor() {
      * Sets whether this dialog is dismissed when touched outside its window's bounds.
      * Only dismiss dialog, never stop task
      *
-     * @param cancelOnTouchOutside default false
+     * @param [cancelOnTouchOutside] default false
      */
     fun cancelOnTouchOutside(cancelOnTouchOutside: Boolean): Builder {
       params.cancelOnTouchOutside = cancelOnTouchOutside
@@ -103,7 +103,7 @@ class ProgressParams private constructor() {
     /**
      * This is the amount of dimming to apply.  Range is from 1.0 for completely opaque to 0.0 for no dim.
      *
-     * @param dimAmount default 0.0
+     * @param [dimAmount] default 0.0
      */
     fun dimAmount(dimAmount: Float): Builder {
       params.dimAmount = dimAmount
@@ -115,7 +115,7 @@ class ProgressParams private constructor() {
      * This must be a system resource; it can not be an application resource
      * because the window manager does not have access to applications.
      *
-     * @param windowAnim default none
+     * @param [windowAnim] default none
      */
     fun windowAnim(windowAnim: Int): Builder {
       params.windowAnim = windowAnim
@@ -125,8 +125,8 @@ class ProgressParams private constructor() {
     /**
      * The size of the progress dialog
      *
-     * @param width default match_parent, min_width 260dp
-     * @param height default 80dp
+     * @param [width] default match_parent, min_width 260dp
+     * @param [height] default 80dp
      */
     fun size(width: Int, height: Int): Builder {
       this.params.width = width
@@ -137,8 +137,8 @@ class ProgressParams private constructor() {
     /**
      * The location that the progress dialog will be shown
      *
-     * @param x
-     * @param y
+     * @param [x]
+     * @param [y]
      */
     fun setCoordinate(x: Int, y: Int): Builder {
       this.params.x = x
@@ -162,7 +162,7 @@ class ProgressParams private constructor() {
     /**
      * Download progress
      *
-     * @param progress 0~100
+     * @param [progress] 0~100
      */
     @UiThread
     fun onProgress(progress: Float)
@@ -170,7 +170,7 @@ class ProgressParams private constructor() {
     /**
      * Download finished
      *
-     * @param path the file path download completed
+     * @param [path] the file path download completed
      */
     @UiThread
     fun onFinished(path: String?)

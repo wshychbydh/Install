@@ -32,31 +32,31 @@ class PromptParams private constructor() {
     private val params = PromptParams()
 
     /**
-     * Set the title displayed in the prompt.
+     * Set the [title] displayed in the prompt.
      *
      * @return This Builder object to allow for chaining of calls to set methods
      */
-    fun setTitle(title: CharSequence): Builder {
+    fun title(title: CharSequence): Builder {
       params.title = title
       return this
     }
 
     /**
-     * Set the content displayed in the prompt.
+     * Set the [content] displayed in the prompt.
      *
      * @return This Builder object to allow for chaining of calls to set methods
      */
-    fun setContent(content: CharSequence): Builder {
+    fun content(content: CharSequence): Builder {
       params.content = content
       return this
     }
 
     /**
-     * Set the prompt to display. null will not prompt
+     * Set the [prompt] to display. null will not prompt
      *
      * @return This Builder object to allow for chaining of calls to set methods
      */
-    fun setPrompt(prompt: IPrompt?): Builder {
+    fun prompt(prompt: IPrompt?): Builder {
       params.prompt = prompt
       return this
     }
@@ -74,7 +74,7 @@ class PromptParams private constructor() {
      * {@link Gravity#applyDisplay(int, android.graphics.Rect, android.graphics.Rect)
      * Gravity.applyDisplay}.
      *
-     * @see Gravity
+     * @see [Gravity]
      */
     fun gravity(gravity: Int): Builder {
       params.gravity = gravity
@@ -84,7 +84,7 @@ class PromptParams private constructor() {
     /**
      * Sets whether this dialog is dismissed when onBackPressed().
      *
-     * @param cancelAble default false
+     * @param [cancelAble] default false
      */
     fun cancelAble(cancelAble: Boolean): Builder {
       params.cancelAble = cancelAble
@@ -94,7 +94,7 @@ class PromptParams private constructor() {
     /**
      * Sets whether this dialog is dismissed when touched outside its window's bounds.
      *
-     * @param cancelOnTouchOutside default false
+     * @param [cancelOnTouchOutside] default false
      */
     fun cancelOnTouchOutside(cancelOnTouchOutside: Boolean): Builder {
       params.cancelOnTouchOutside = cancelOnTouchOutside
@@ -104,7 +104,7 @@ class PromptParams private constructor() {
     /**
      * This is the amount of dimming to apply.  Range is from 1.0 for completely opaque to 0.0 for no dim.
      *
-     * @param dimAmount default 0.0
+     * @param [dimAmount] default 0.0
      */
     fun dimAmount(dimAmount: Float): Builder {
       params.dimAmount = dimAmount
@@ -116,7 +116,7 @@ class PromptParams private constructor() {
      * This must be a system resource; it can not be an application resource
      * because the window manager does not have access to applications.
      *
-     * @param windowAnim default none
+     * @param [windowAnim] default none
      */
     fun windowAnim(windowAnim: Int): Builder {
       params.windowAnim = windowAnim
@@ -126,8 +126,8 @@ class PromptParams private constructor() {
     /**
      * The size of the progress dialog
      *
-     * @param width default match_parent
-     * @param height default wrap_content
+     * @param [width] default match_parent
+     * @param [height] default wrap_content
      */
     fun size(width: Int, height: Int): Builder {
       this.params.width = width
@@ -138,10 +138,10 @@ class PromptParams private constructor() {
     /**
      * The location that the prompt dialog will be shown
      *
-     * @param x
-     * @param y
+     * @param [x]
+     * @param [y]
      */
-    fun setCoordinate(x: Int, y: Int): Builder {
+    fun coordinate(x: Int, y: Int): Builder {
       this.params.x = x
       this.params.y = y
       return this
@@ -156,10 +156,10 @@ class PromptParams private constructor() {
      * Make a view to display.
      * If you don't want to provide views, return null and pop-up a custom dialog then callback promptListener
      *
-     * @param context
-     * @param title
-     * @param content
-     * @param listener User-selected callbacks
+     * @param [context]
+     * @param [title]
+     * @param [content]
+     * @param [listener] User-selected callbacks
      * @return The view to display or null
      */
     fun createView(

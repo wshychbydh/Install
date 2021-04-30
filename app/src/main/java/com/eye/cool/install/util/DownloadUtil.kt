@@ -61,8 +61,10 @@ object DownloadUtil {
       val packageManager = context.packageManager
       val packageInfo = packageManager.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_ACTIVITIES)
       if (packageInfo != null) {
-        DownloadLog.logI("old apk-->packageName:${packageInfo.packageName}; versionCode:${packageInfo.versionCode}; versionName:${packageInfo.versionName}")
-        DownloadLog.logI("new apk-->packageName:${context.packageName}; versionCode:${params.versionCode}; versionName:${params.versionName}")
+        DownloadLog.logI("old apk-->packageName:${packageInfo.packageName}; " +
+            "versionCode:${packageInfo.versionCode}; versionName:${packageInfo.versionName}")
+        DownloadLog.logI("new apk-->packageName:${context.packageName}; " +
+            "versionCode:${params.versionCode}; versionName:${params.versionName}")
         return packageInfo.versionCode == params.versionCode
             && packageInfo.versionName == params.versionName
             && packageInfo.packageName == context.packageName

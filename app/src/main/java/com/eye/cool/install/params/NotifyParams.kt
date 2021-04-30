@@ -22,11 +22,11 @@ class NotifyParams private constructor() : Parcelable {
     private val params = NotifyParams()
 
     /**
-     * @param notifyId The identifier for this notification as per
+     * @param [notifyId] The identifier for this notification as per
      * {@link NotificationManager#notify(int, Notification)
      * NotificationManager.notify(int, Notification)}; must not be 0.
      */
-    fun setNotifyId(notifyId: Int): Builder {
+    fun notifyId(notifyId: Int): Builder {
       params.notifyId = notifyId
       return this
     }
@@ -34,9 +34,9 @@ class NotifyParams private constructor() : Parcelable {
     /**
      * {@link NotificationChannel#ChannelId and Notification#ChannelId}
      *
-     * @param channelId The constructed Notification will be posted on this NotificationChannel.
+     * @param [channelId] The constructed Notification will be posted on this NotificationChannel.
      */
-    fun setChannelId(channelId: String): Builder {
+    fun channelId(channelId: String): Builder {
       params.channelId = channelId
       return this
     }
@@ -44,19 +44,19 @@ class NotifyParams private constructor() : Parcelable {
     /**
      * Creates a notification channel that notifications can be posted to.
      *
-     * @param channel  the channel to create.  Note that the created channel may differ from this
+     * @param [channel] The channel to create.  Note that the created channel may differ from this
      *                 value. If the provided channel is malformed, a RemoteException will be
      *                 thrown.
      */
-    fun setNotificationChannel(channel: NotificationChannel): Builder {
+    fun notificationChannel(channel: NotificationChannel): Builder {
       params.notifyChannel
       return this
     }
 
     /**
-     * @param notification The Notification to be displayed.
+     * @param [notification] The Notification to be displayed.
      */
-    fun setNotification(notification: Notification): Builder {
+    fun notification(notification: Notification): Builder {
       params.notification = notification
       return this
     }

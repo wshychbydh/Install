@@ -5,23 +5,37 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.wshychbydh'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
     resourcePrefix 'install_'
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 29
-        versionCode 15
-        versionName "1.1.5"
+        targetSdkVersion 30
+        versionCode 16
+        versionName "1.2.0"
     }
 
     lintOptions {
         ignoreWarnings true
     }
+
+    kotlinOptions {
+        suppressWarnings = true
+    }
+}
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+artifacts {
+    archives androidSourcesJar
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
 }

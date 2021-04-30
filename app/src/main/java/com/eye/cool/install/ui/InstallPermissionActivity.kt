@@ -14,6 +14,9 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import com.eye.cool.install.R
+import com.eye.cool.install.support.complete
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Request install permissions.
@@ -25,9 +28,16 @@ internal class InstallPermissionActivity : Activity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    invasionStatusBar(this)
+    val requested = savedInstanceState?.getString(TAG_REQUEST_INSTALL_PACKAGES)
+    if (requested.isNullOrEmpty()) {
+      showInstallSettingDialog()
+      invasionStatusBar(this)
+    }
+  }
 
-    showInstallSettingDialog()
+  override fun onSaveInstanceState(outState: Bundle) {
+    outState.putString(TAG_REQUEST_INSTALL_PACKAGES, "requested")
+    super.onSaveInstanceState(outState)
   }
 
   private fun showInstallSettingDialog() {
@@ -37,14 +47,21 @@ internal class InstallPermissionActivity : Activity() {
         .setTitle(R.string.install_permission_title_rationale)
         .setMessage(message)
         .setPositiveButton(R.string.install_permission_setting) { _, _ ->
-          val intent = Intent(
-              Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-              Uri.parse("package:$packageName")
-          )
-          startActivityForResult(intent, REQUEST_INSTALL_PACKAGES_CODE)
+          toInstallSetting()
         }
-        .setNegativeButton(R.string.install_permission_no) { _, _ -> sRequestInstallPackageListener?.invoke(false) }
+        .setNegativeButton(R.string.install_permission_no) { _, _ ->
+          sRequestInstallPackageCallback?.complete(false)
+          finish()
+        }
         .show()
+  }
+
+  private fun toInstallSetting() {
+    val intent = Intent(
+        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+        Uri.parse("package:$packageName")
+    )
+    startActivityForResult(intent, REQUEST_INSTALL_PACKAGES_CODE)
   }
 
   private fun getAppName(context: Context): String {
@@ -59,25 +76,27 @@ internal class InstallPermissionActivity : Activity() {
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
     if (requestCode == REQUEST_INSTALL_PACKAGES_CODE) {
-      sRequestInstallPackageListener?.invoke(resultCode == RESULT_OK)
+      sRequestInstallPackageCallback?.complete(resultCode == RESULT_OK)
     }
     finish()
   }
 
   override fun onDestroy() {
-    sRequestInstallPackageListener = null
+    sRequestInstallPackageCallback = null
     super.onDestroy()
   }
 
   companion object {
 
+    private const val TAG_REQUEST_INSTALL_PACKAGES = "request_install_packages"
     private const val REQUEST_INSTALL_PACKAGES_CODE = 4001
 
-    private var sRequestInstallPackageListener: ((Boolean) -> Unit)? = null
+    private var sRequestInstallPackageCallback: CancellableContinuation<Boolean>? = null
 
-    @TargetApi(Build.VERSION_CODES.O)
-    fun requestInstallPermission(context: Context, callback: ((Boolean) -> Unit)? = null) {
-      sRequestInstallPackageListener = callback
+    suspend fun requestInstallPermission(
+        context: Context
+    ) = suspendCancellableCoroutine<Boolean> {
+      sRequestInstallPackageCallback = it
       val intent = Intent(context, InstallPermissionActivity::class.java)
       intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
       context.startActivity(intent)

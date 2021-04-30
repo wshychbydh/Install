@@ -10,11 +10,11 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import com.eye.cool.install.R
 import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.support.FileDownloader
-import com.eye.cool.install.support.SharedHelper
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.InstallUtil
 import kotlinx.coroutines.*
@@ -35,14 +35,8 @@ internal class DownloadProgressDialog : DialogActivity() {
 
   private var countDownTimer: CountDownTimer? = null
 
-  private lateinit var downloadManager: DownloadManager
-
-  @Volatile
-  private var query: DownloadManager.Query? = null
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     progressParams = sParams!!.progressParams
 
     setFinishOnTouchOutside(progressParams.cancelOnTouchOutside)
@@ -60,10 +54,15 @@ internal class DownloadProgressDialog : DialogActivity() {
       downloadId = intent.getLongExtra(DOWNLOAD_ID, -1)
       DownloadLog.logE("Download id :$downloadId")
       if (downloadId > 0L) {
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val query = DownloadManager.Query().setFilterById(downloadId)
         progressParams.listener?.onStart()
         countDownTimer = DownloadCountDown(progressParams.progressTimeout) {
-          GlobalScope.launch {
-            queryDownloadStatus()
+          lifecycleScope.launch(Dispatchers.IO) {
+            try {
+              queryDownloadStatus(downloadManager, query)
+            } catch (ignore: Exception) {
+            }
           }
         }.start()
       }
@@ -74,8 +73,10 @@ internal class DownloadProgressDialog : DialogActivity() {
     }
   }
 
-  private suspend fun queryDownloadStatus() {
-    val query = this.query ?: DownloadManager.Query().setFilterById(downloadId)
+  private suspend fun queryDownloadStatus(
+      downloadManager: DownloadManager,
+      query: DownloadManager.Query
+  ) {
     val cursor = downloadManager.query(query)
     if (!cursor.moveToFirst()) return
     val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
@@ -86,11 +87,12 @@ internal class DownloadProgressDialog : DialogActivity() {
     DownloadLog.logI("$downloadId-->Download status:$status; progress:$progress")
     when (status) {
       DownloadManager.STATUS_FAILED -> {
+        countDownTimer?.cancel()
         finish()
       }
       DownloadManager.STATUS_SUCCESSFUL -> {
-        val info = SharedHelper.getDownloadById(this, downloadId)
-        val path = info?.path ?: InstallUtil.queryFileByDownloadId(this, downloadId)
+        countDownTimer?.cancel()
+        val path = InstallUtil.queryFileByDownloadId(this, downloadId)
         withContext(Dispatchers.Main) {
           progressParams.listener?.onFinished(path)
         }

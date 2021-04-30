@@ -14,10 +14,10 @@ class FileParams private constructor() {
       /**
        * If you don't want to download the same apk twice, set the version of the apk to be downloaded
        *
-       * @param versionCode The versionCode of apk
-       * @param versionName The versionName of apk
+       * @param [versionCode] The versionCode of apk
+       * @param [versionName] The versionName of apk
        */
-      fun setVersion(versionCode: Int, versionName: String): Builder {
+      fun version(versionCode: Int, versionName: String): Builder {
         info.versionCode = versionCode
         info.versionName = versionName
         return this
@@ -33,17 +33,17 @@ class FileParams private constructor() {
       }
 
       /**
-       * @param length The length of the download file used to determine if a new download is required
+       * @param [length] The length of the download file used to determine if a new download is required
        */
-      fun setLength(length: Long): Builder {
+      fun length(length: Long): Builder {
         info.length = length
         return this
       }
 
       /**
-       * @param md5 The md5 of the download file used to determine if a new download is required
+       * @param [md5] The md5 of the download file used to determine if a new download is required
        */
-      fun setMD5(md5: String): Builder {
+      fun mD5(md5: String): Builder {
         info.md5 = md5
         return this
       }

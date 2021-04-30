@@ -4,25 +4,23 @@ import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Environment
 import android.webkit.URLUtil
 import androidx.core.content.ContextCompat
 import com.eye.cool.install.params.DownloadParams
 import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
-import com.eye.cool.install.params.PromptParams
 import com.eye.cool.install.support.DownloadInfo
 import com.eye.cool.install.support.DownloadService
 import com.eye.cool.install.support.SharedHelper
-import com.eye.cool.install.ui.DownloadProgressDialog
-import com.eye.cool.install.ui.InstallPermissionActivity
-import com.eye.cool.install.ui.PermissionActivity
-import com.eye.cool.install.ui.PromptDialog
+import com.eye.cool.install.support.complete
+import com.eye.cool.install.ui.*
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.DownloadUtil
 import com.eye.cool.install.util.InstallUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.File
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 class DownloadHelper {
 
@@ -54,18 +52,27 @@ class DownloadHelper {
 
   fun start() {
     GlobalScope.launch {
+
       if (!checkParams()) return@launch
-      tryShowPrompt()
+
+      if (!tryShowPrompt()) {
+        DownloadLog.logI("Download canceled")
+        return@launch
+      }
+
+      if (checkInstallPermission()) {
+        download()
+      } else {
+        DownloadLog.logE("Download failed, install_package permission denied.")
+      }
     }
   }
 
   private fun checkParams(): Boolean {
     val downloadParams = params.downloadParams
     if (!URLUtil.isValidUrl(downloadParams.downloadUrl)) {
-      if (!downloadParams.useDownloadManager || downloadParams.request == null) {
-        DownloadLog.logE("Download url(${downloadParams.downloadUrl}) is invalid..")
-        return false
-      }
+      DownloadLog.logE("Download url(${downloadParams.downloadUrl}) is invalid..")
+      return false
     }
 
     if (downloadParams.forceDownload && DownloadProgressDialog.sParams != null) {
@@ -76,84 +83,38 @@ class DownloadHelper {
     return true
   }
 
-  private fun startOnPermissionGranted() {
-    val target = context.applicationInfo.targetSdkVersion
-    if (target >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      checkPermission { result ->
-        if (result) {
-          download()
-        } else {
-          DownloadLog.logE("Download failed, permission denied.")
-        }
-      }
-    } else {
-      download()
-    }
-  }
+  private suspend fun checkInstallPermission(): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-  private fun checkPermission(invoker: (Boolean) -> Unit) {
+      if (params.fileParams.isApk) {
 
-    val permissions = arrayOf(
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
-    )
+        if (context.packageManager.canRequestPackageInstalls()) return true
 
-    if (params.permissionInvoker == null) {
-      PermissionActivity.requestPermission(context, permissions) {
-        if (it) {
-          if (params.fileParams.isApk) {
-            checkInstallPermission(invoker)
-          } else {
-            invoker.invoke(true)
-          }
+        return if (params.installPermissionInvoker == null) {
+          InstallPermissionActivity.requestInstallPermission(context)
         } else {
-          invoker.invoke(false)
-        }
-      }
-    } else {
-      params.permissionInvoker!!.request(permissions) {
-        if (it) {
-          if (params.fileParams.isApk) {
-            checkInstallPermission(invoker)
-          } else {
-            invoker.invoke(true)
-          }
-        } else {
-          invoker.invoke(false)
+          requestInstallPermission()
         }
       }
     }
+    return true
   }
 
-  private fun checkInstallPermission(invoker: (Boolean) -> Unit) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || context.packageManager.canRequestPackageInstalls()) {
-      invoker.invoke(true)
-      return
+  private suspend fun requestInstallPermission() = suspendCancellableCoroutine<Boolean> {
+    params.installPermissionInvoker!!.request { result ->
+      it.complete(result)
     }
-    if (params.installPermissionInvoker == null) {
-      InstallPermissionActivity.requestInstallPermission(context, invoker)
+  }
+
+  private suspend fun tryShowPrompt(): Boolean {
+    return if (params.promptParams?.isValid() == true) {
+      PromptDialog.show(context, params.promptParams!!)
     } else {
-      params.installPermissionInvoker!!.request(invoker)
+      true
     }
   }
 
-  private fun tryShowPrompt() {
-    if (params.promptParams?.isValid() == true) {
-      PromptDialog.show(context, params.promptParams!!, object : PromptParams.IPromptListener {
-        override fun onCancel() {
-          DownloadLog.logI("Download canceled")
-        }
-
-        override fun onUpgrade() {
-          startOnPermissionGranted()
-        }
-      })
-    } else {
-      startOnPermissionGranted()
-    }
-  }
-
-  private fun download() {
+  private suspend fun download() {
     val downloadParams = params.downloadParams
     if (!downloadParams.repeatDownload) {
       val downloadFile = downloadParams.composeDownloadFile(context, params.fileParams.isApk)
@@ -173,7 +134,12 @@ class DownloadHelper {
     }
 
     if (downloadParams.useDownloadManager) {
-      downloadByDownloadManager()
+      val result = requestReadPermission()
+      if (result) {
+        downloadByDownloadManager()
+      } else {
+        DownloadLog.logE("Download failed, read_storage permission denied.")
+      }
     } else {
       if (downloadParams.forceDownload) {
         DownloadProgressDialog.show(context, params)
@@ -187,20 +153,57 @@ class DownloadHelper {
     val downloadParams = params.downloadParams
     val intent = Intent(context, DownloadService::class.java)
     intent.putExtra(DownloadService.DOWNLOAD_URL, downloadParams.downloadUrl)
-    intent.putExtra(DownloadService.FILE_PATH, downloadParams.composeDownloadFile(context, params.fileParams.isApk).absolutePath)
+    intent.putExtra(DownloadService.FILE_PATH,
+        downloadParams.composeDownloadFile(context, params.fileParams.isApk).absolutePath)
     intent.putExtra(DownloadService.IS_APK, params.fileParams.isApk)
     intent.putExtra(DownloadService.NOTIFY_PARAMS, params.notifyParams)
     ContextCompat.startForegroundService(context, intent)
   }
 
+  private suspend fun requestReadPermission() = suspendCancellableCoroutine<Boolean> {
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      it.complete(true)
+      return@suspendCancellableCoroutine
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
+      it.complete(true)
+      return@suspendCancellableCoroutine
+    } else {
+
+    }
+
+    if (params.permissionInvoker == null) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        PermissionManageFileActivity.request(context, it)
+      } else {
+        val permissions = arrayOf(
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        PermissionActivity.request(context, permissions, it)
+      }
+    } else {
+      val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        arrayOf(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+      } else {
+        arrayOf(
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+      }
+      params.permissionInvoker!!.requestPermission(permissions) { result ->
+        it.complete(result)
+      }
+    }
+  }
+
   private fun downloadByDownloadManager() {
 
-    val pair = params.downloadParams.createRequest(context) ?: return
+    val request = params.downloadParams.request
+        ?: params.downloadParams.createRequest(context, params.fileParams.isApk) ?: return
     val downloadParams = params.downloadParams
     val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    val downloadId = manager.enqueue(pair.first)
-    val downloadDir = pair.second
-    val downloadFile: File? = if (downloadDir == null) null else File(downloadDir, downloadParams.downloadSubPath)
+    val downloadId = manager.enqueue(request)
 
     if (downloadParams.forceDownload) {
       DownloadProgressDialog.show(context, params, downloadId)
@@ -208,8 +211,7 @@ class DownloadHelper {
 
     SharedHelper.saveDownload(context, DownloadInfo(
         downloadId,
-        params.fileParams.isApk,
-        downloadFile?.absolutePath
+        params.fileParams.isApk
     ))
   }
 

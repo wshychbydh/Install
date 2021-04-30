@@ -5,6 +5,5 @@ package com.eye.cool.install.support
  */
 internal class DownloadInfo(
     val downloadId: Long,
-    val isApk: Boolean,
-    val path: String?
+    val isApk: Boolean
 )

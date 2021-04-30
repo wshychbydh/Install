@@ -5,6 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import com.eye.cool.install.params.PromptParams
+import com.eye.cool.install.support.complete
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 
 /**
@@ -54,12 +57,12 @@ internal class PromptDialog : DialogActivity(), PromptParams.IPromptListener {
   }
 
   override fun onUpgrade() {
-    promptListener?.onUpgrade()
+    callback?.complete(true)
     finish()
   }
 
   override fun onCancel() {
-    promptListener?.onCancel()
+    callback?.complete(false)
     finish()
   }
 
@@ -74,21 +77,20 @@ internal class PromptDialog : DialogActivity(), PromptParams.IPromptListener {
   override fun onDestroy() {
     super.onDestroy()
     promptParams = null
-    promptListener = null
+    callback = null
   }
 
   companion object {
 
     private var promptParams: PromptParams? = null
-    private var promptListener: PromptParams.IPromptListener? = null
+    private var callback: CancellableContinuation<Boolean>? = null
 
-    fun show(
+    suspend fun show(
         context: Context,
-        promptParams: PromptParams,
-        promptListener: PromptParams.IPromptListener
-    ) {
+        promptParams: PromptParams
+    ) = suspendCancellableCoroutine<Boolean> {
       this.promptParams = promptParams
-      this.promptListener = promptListener
+      this.callback = it
       val intent = Intent(context, PromptDialog::class.java)
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(intent)
