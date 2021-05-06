@@ -118,6 +118,9 @@ class Params private constructor() {
     }
 
     fun build(): Params {
+      if (params.downloadParams.downloadUrl.isNullOrEmpty()) {
+        throw IllegalArgumentException("@link {DownloadParams.downloadUrl} can not be empty.")
+      }
       return params
     }
   }

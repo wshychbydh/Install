@@ -9,7 +9,6 @@ import android.webkit.URLUtil
 import androidx.core.content.ContextCompat
 import com.eye.cool.install.params.DownloadParams
 import com.eye.cool.install.params.Params
-import com.eye.cool.install.params.ProgressParams
 import com.eye.cool.install.support.DownloadInfo
 import com.eye.cool.install.support.DownloadService
 import com.eye.cool.install.support.SharedHelper
@@ -35,11 +34,6 @@ class DownloadHelper {
   constructor(context: Context, downloadParams: DownloadParams) {
     this.context = context
     this.params.downloadParams = downloadParams
-  }
-
-  constructor(context: Context, progressParams: ProgressParams) {
-    this.context = context
-    this.params.progressParams = progressParams
   }
 
   constructor(context: Context, params: Params) {
