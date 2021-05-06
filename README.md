@@ -21,17 +21,16 @@
 ### 使用方法：
 
 1、在root目录的build.gradle目录中添加
-```
+```groovy
     allprojects {
         repositories {
-            ...
             maven { url 'https://jitpack.io' }
         }
     }
 ```
 
 2、在项目的build.gradle中添加依赖
-```
+```groovy
     dependencies {
         implementation 'com.github.wshychbydh:install:tag'
     }
@@ -40,7 +39,7 @@
 **注**：
 
 1)、如果编译的时候报重复的'META-INF/app_release.kotlin_module'时，在app的build.gradle文件的android下添加
-```
+```groovy
     packagingOptions {
         exclude 'META-INF/app_release.kotlin_module'
     }
@@ -54,7 +53,7 @@
 ### 示例：
 
 1、构建参数
-```
+```kotlin
    val promptParams = PromptParams.Builder()           
         .coordinate(x, y)                             //(可选) 提示框显示的x,y坐标
         .size(width, height)                          //(可选) 提示框大小，默认100%屏宽
@@ -76,7 +75,7 @@
         .repeatDownload(Boolean)                      //(可选) 是否重复下载，默认false
         .build()
 
-   //当downloadParams.repeateDownlaod为false的时候配置不重复下载条件
+   //当downloadParams.repeatDownload为false的时候，可配置不重复下载条件
    val fileParams = FileParams.Builder()
         .isApk(isApk)                                 //(可选) 下载的文件是否为apk，默认true，若是apk将会触发自动安装
         .version(versionCode, versionName)            //(可选) 将要下载的apk版本信息
@@ -120,14 +119,12 @@
         .build() 
 ```
 2、启动下载 （以下任意一种启动方式即可）
-```
+```kotlin
     DownloadHelper(context, downloadUrl).start()  
         
     DownloadHelper(context, downloadParams).start()
     
-    DownloadHelper(context, progressParams).start()
-    
-    DownloadHelper(context, params).start()
+    DownloadHelper(context, params).start() //需设置DownloadParams.downloadUrl
 ```
 
 
