@@ -10,7 +10,6 @@ import androidx.annotation.StyleRes
  * Created by ycb on 2019/11/28 0028
  */
 class WindowParams private constructor(
-    internal val themeStyle: Int?,
 
     internal val width: Int?,
     internal val height: Int?,
@@ -46,8 +45,6 @@ class WindowParams private constructor(
   }
 
   data class Builder(
-      var themeStyle: Int? = null,
-
       var width: Int? = null,
       var height: Int? = null,
 
@@ -205,7 +202,6 @@ class WindowParams private constructor(
     }
 
     fun build() = WindowParams(
-        themeStyle = themeStyle,
         width = width,
         height = height,
         gravity = gravity,

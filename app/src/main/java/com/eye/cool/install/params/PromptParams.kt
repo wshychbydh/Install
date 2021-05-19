@@ -23,7 +23,7 @@ class PromptParams private constructor(
     return (!title.isNullOrEmpty() || !content.isNullOrEmpty()) || prompt != null
   }
 
-  class Builder(
+  data class Builder(
       var title: CharSequence? = null,
       var content: CharSequence? = null,
       var prompt: IPrompt? = DefaultPrompt(),
