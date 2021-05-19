@@ -54,27 +54,38 @@
 
 1、构建参数
 ```kotlin
-   val promptParams = PromptParams.Builder()           
-        .coordinate(x, y)                             //(可选) 提示框显示的x,y坐标
-        .size(width, height)                          //(可选) 提示框大小，默认100%屏宽
-        .cancelAble(cancelAble)                       //(可选) 提示框是否可按返回键取消，默认false
-        .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 提示框是否在点击区域外取消，默认false
-        .dimAmount(dimAmount)                         //(可选) 提示框出现时，背景灰度，默认0
-        .gravity(gravity)                             //(可选) 提示框对齐方式，默认Gravity.Center
-        .windowAnim(windowAnim)                       //(可选) 提示框window动画，默认无
-        .title(title)                                 //(可选) 提示框标题
-        .content(content)                             //(可选) 提示框内容（内容和标题需至少有一个，否则不提示）
-        .prompt(prompt)                               //(可选) 自定义提示框
-        .build() 
 
-   val downloadParams = DownloadParams.Builder()
-        .downloadUrl(downloadUrl)                     //(必填) 将要下载的apk网络地址
+   //kotlin构建: downloadParams = DownloadParams.build(downloadUrl){...}（推荐）
+   val downloadParams = DownloadParams.Builder(downloadUrl) //(必填) 将要下载的apk网络地址
+        .downloadPath(DownloadManager.Request)        //(可选) 自定义下载文件路径，可能需自行授权相应权限
         .request(DownloadManager.Request)             //(可选) 自定义DownloadManger.Request
         .useDownloadManager(Boolean)                  //(可选) 后台下载时是否使用DownloadManager下载，默认true
-        .forceUpdate(Boolean)                         //(可选) 是否强制升级，默认false
+        .forceDownload(Boolean)                       //(可选) 是否强制升级，默认false
         .repeatDownload(Boolean)                      //(可选) 是否重复下载，默认false
         .build()
 
+   //kotlin构建: windowParams = WindowParams.build{...}（推荐）  
+   //窗体相关设置,可用于prompt和progress
+   val windowParams = WindowParams.Builder()
+        .position(x, y)                               //(可选) 显示的x,y坐标
+        .size(width, height)                          //(可选) 进度框大小，默认100%屏宽
+        .cancelAble(cancelAble)                       //(可选) 是否可取消，但不会取消任务，默认false
+        .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 是否在点击区域外取消，不会取消任务，默认false
+        .dimAmount(dimAmount)                         //(可选) 进度框出现时，背景灰度，默认0
+        .gravity(gravity)                             //(可选) 对齐方式，默认Gravity.Center
+        .windowAnim(windowAnim)                       //(可选) 进度框window动画，默认无
+        .build()
+
+   //kotlin构建: promptParams = PromptParams.build{...}（推荐） 
+   //（title/content/prompt至少需设置一个，否则不提示）
+   val promptParams = PromptParams.Builder()           
+        .title(title)                                 //(可选) 默认提示框标题
+        .content(content)                             //(可选) 默认提示框内容
+        .prompt(prompt)                               //(可选) 自定义提示框
+        .windowParams(windowParams)                   //(可选) 自定义提示框窗体设置
+        .build() 
+
+   //kotlin构建: fileParams = FileParams.build{...}（推荐） 
    //当downloadParams.repeatDownload为false的时候，可配置不重复下载条件
    val fileParams = FileParams.Builder()
         .isApk(isApk)                                 //(可选) 下载的文件是否为apk，默认true，若是apk将会触发自动安装
@@ -82,20 +93,16 @@
         .length(versionCode, versionName)             //(可选) 将要下载的文件长度，若与已下载的文件长度一致将不重复下载
         .md5(versionCode, versionName)                //(可选) 将要下载的文件md5值，若与已下载的文件md5一致将不重复下载
         .build()
-
+  
+  //kotlin构建: progressParams = ProgressParams.build{...}（推荐） 
    val progressParams = ProgressParams.Builder()
-        .coordinate(x, y)                             //(可选) 显示的x,y坐标
-        .size(width, height)                          //(可选) 进度框大小，默认100%屏宽
-        .cancelAble(cancelAble)                       //(可选) 是否可取消，但不会取消任务，默认false
-        .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 是否在点击区域外取消，不会取消任务，默认false
-        .dimAmount(dimAmount)                         //(可选) 进度框出现时，背景灰度，默认0
-        .gravity(gravity)                             //(可选) 对齐方式，默认Gravity.Center
-        .windowAnim(windowAnim)                       //(可选) 进度框window动画，默认无
+        .windowParams(windowParams)                   //(可选) 进度框窗体设置
         .progressListener(listener)                   //(可选) 监听下载
         .progressView(view)                           //(可选) 自定义view
         .progressTimeout(Long)                        //(可选) 进度框加载超时时长，超时后不会取消下载任务，默认10分钟
         .build()
 
+   //kotlin构建: notifyParams = NotifyParams.build{...}（推荐） 
    //当系统版本>=8.0时，将后台服务变为前台服务
    val notifyParams = NotifyParams.Builder()
         .notifyId(Int)                             //(可选) 通知id
@@ -104,8 +111,8 @@
         .notification(cancelAble)                  //(可选) 自定义通知
         .build()
 
-   val params = Params.Builder()
-        .downloadParams(downloadParams)            //(必填) 构建下载参数
+   //kotlin构建: params = Params.build(downloadParams){...}（推荐） 
+   val params = Params.Builder(downloadParams)     //(必填) 构建下载参数
         .progressParams(progressParams)            //(可选) 构建进度框参数
         .promptParams(promptParams)                //(可选) 构建提示框参数
         .fileParams(promptParams)                  //(可选) 构建下载文件参数
@@ -126,7 +133,6 @@
     
     DownloadHelper(context, params).start() //需设置DownloadParams.downloadUrl
 ```
-
 
 #####   
  
