@@ -2,39 +2,51 @@ package com.eye.cool.install.params
 
 import android.annotation.TargetApi
 import android.os.Build
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.plus
-import kotlin.coroutines.CoroutineContext
+import android.webkit.URLUtil
 
 /**
  *Created by ycb on 2019/11/28 0028
  */
-class Params private constructor() {
+class Params private constructor(
+    internal val logTag: String,
+    internal val enableLog: Boolean,
+    internal val authority: String?,
+    internal val permissionInvoker: PermissionInvoker?,
+    internal val installPermissionInvoker: InstallPermissionInvoker?,
+    internal val promptParams: PromptParams?,
+    internal val downloadParams: DownloadParams,
+    internal val progressParams: ProgressParams,
+    internal val fileParams: FileParams,
+    internal val notifyParams: NotifyParams
+) {
 
-  internal var logTag: String = "download"
-  internal var enableLog: Boolean = false
-  internal var authority: String? = null
-  internal var permissionInvoker: PermissionInvoker? = null
-  internal var installPermissionInvoker: InstallPermissionInvoker? = null
-  internal var promptParams: PromptParams? = null
-  internal var downloadParams: DownloadParams = DownloadParams.Builder().build()
-  internal var progressParams: ProgressParams = ProgressParams.Builder().build()
-  internal var fileParams: FileParams = FileParams.Builder().build()
-  internal var notifyParams: NotifyParams = NotifyParams.Builder().build()
+  companion object {
+    inline fun build(
+        downloadParams: DownloadParams,
+        block: Builder.() -> Unit
+    ) = Builder(downloadParams = downloadParams).apply(block).build()
+  }
 
-  class Builder {
-
-    private val params = Params()
+  data class Builder(
+      var downloadParams: DownloadParams,
+      var logTag: String = "download",
+      var enableLog: Boolean = false,
+      var authority: String? = null,
+      var permissionInvoker: PermissionInvoker? = null,
+      var installPermissionInvoker: InstallPermissionInvoker? = null,
+      var promptParams: PromptParams? = null,
+      var progressParams: ProgressParams = ProgressParams.Builder().build(),
+      var fileParams: FileParams = FileParams.Builder().build(),
+      var notifyParams: NotifyParams = NotifyParams.Builder().build()
+  ) {
 
     /**
      * The download progress dialog related parameter settings
      *
      * @param [progressParams]
      */
-    fun progressParams(progressParams: ProgressParams): Builder {
-      params.progressParams = progressParams
-      return this
+    fun progressParams(progressParams: ProgressParams) = apply {
+      this.progressParams = progressParams
     }
 
     /**
@@ -42,9 +54,8 @@ class Params private constructor() {
      *
      * @param [downloadParams]
      */
-    fun downloadParams(downloadParams: DownloadParams): Builder {
-      params.downloadParams = downloadParams
-      return this
+    fun downloadParams(downloadParams: DownloadParams) = apply {
+      this.downloadParams = downloadParams
     }
 
     /**
@@ -52,20 +63,14 @@ class Params private constructor() {
      * @param [tag] Used to identify the source of a log message.  It usually identifies
      *        the class or activity where the log call occurs.
      */
-    fun logTag(tag: String): Builder {
-      params.logTag = tag
-      return this
-    }
+    fun logTag(tag: String) = apply { this.logTag = tag }
 
     /**
      * Enable log, then you can see some download details, log tag 'download'
      *
      * @param [enable] default false
      */
-    fun enableLog(enable: Boolean): Builder {
-      params.enableLog = enable
-      return this
-    }
+    fun enableLog(enable: Boolean) = apply { this.enableLog = enable }
 
     /**
      * If you specify a custom download path, you need to add a FileProvider above 7.0
@@ -73,10 +78,7 @@ class Params private constructor() {
      * @param [authority] The authority of a {@link FileProvider} defined in a
      *            {@code <provider>} element in your app's manifest.
      */
-    fun authority(authority: String): Builder {
-      params.authority = authority
-      return this
-    }
+    fun authority(authority: String) = apply { this.authority = authority }
 
     /**
      * Callback the request result after requesting installation permission
@@ -84,9 +86,8 @@ class Params private constructor() {
      * @param [installPermissionInvoker] Permission invoker callback after to request installation permissions
      */
     @TargetApi(Build.VERSION_CODES.O)
-    fun installPermissionInvoker(installPermissionInvoker: InstallPermissionInvoker?): Builder {
-      params.installPermissionInvoker = installPermissionInvoker
-      return this
+    fun installPermissionInvoker(installPermissionInvoker: InstallPermissionInvoker?) = apply {
+      this.installPermissionInvoker = installPermissionInvoker
     }
 
     /**
@@ -94,35 +95,32 @@ class Params private constructor() {
      *
      * @param [promptParams]
      */
-    fun promptParams(promptParams: PromptParams): Builder {
-      params.promptParams = promptParams
-      return this
-    }
+    fun promptParams(promptParams: PromptParams) = apply { this.promptParams = promptParams }
 
     /**
      *
      * @param [fileParams]
      */
-    fun fileParams(fileParams: FileParams): Builder {
-      params.fileParams = fileParams
-      return this
-    }
+    fun fileParams(fileParams: FileParams) = apply { this.fileParams = fileParams }
 
     /**
      *
      * @param [notifyParams]
      */
-    fun notifyParams(notifyParams: NotifyParams): Builder {
-      params.notifyParams = notifyParams
-      return this
-    }
+    fun notifyParams(notifyParams: NotifyParams) = apply { this.notifyParams = notifyParams }
 
-    fun build(): Params {
-      if (params.downloadParams.downloadUrl.isNullOrEmpty()) {
-        throw IllegalArgumentException("@link {DownloadParams.downloadUrl} can not be empty.")
-      }
-      return params
-    }
+    fun build() = Params(
+        logTag = logTag,
+        enableLog = enableLog,
+        authority = authority,
+        permissionInvoker = permissionInvoker,
+        installPermissionInvoker = installPermissionInvoker,
+        promptParams = promptParams,
+        downloadParams = downloadParams,
+        progressParams = progressParams,
+        fileParams = fileParams,
+        notifyParams = notifyParams
+    )
   }
 
   interface InstallPermissionInvoker {

@@ -56,7 +56,7 @@ object DownloadUtil {
   }
 
   private fun isApkDownload(context: Context, file: File, params: FileParams): Boolean {
-    if (params.versionCode <= 0 || params.versionName.isNullOrEmpty()) return false
+    if (params.versionCode ?: 0 <= 0 || params.versionName.isNullOrEmpty()) return false
     try {
       val packageManager = context.packageManager
       val packageInfo = packageManager.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_ACTIVITIES)

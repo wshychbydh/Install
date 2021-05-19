@@ -7,13 +7,13 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
-import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import com.eye.cool.install.R
 import com.eye.cool.install.params.Params
 import com.eye.cool.install.params.ProgressParams
+import com.eye.cool.install.params.WindowParams
 import com.eye.cool.install.support.FileDownloader
 import com.eye.cool.install.util.DownloadLog
 import com.eye.cool.install.util.InstallUtil
@@ -28,18 +28,17 @@ internal class DownloadProgressDialog : DialogActivity() {
 
   private var apkDownloader: FileDownloader? = null
 
-  private lateinit var progressParams: ProgressParams
+  private val progressParams: ProgressParams = sParams!!.progressParams
   private var downloadId = -1L
 
   private var defaultProgress: DefaultProgress? = null
 
   private var countDownTimer: CountDownTimer? = null
 
+  override val windowParams: WindowParams? = progressParams.window
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    progressParams = sParams!!.progressParams
-
-    setFinishOnTouchOutside(progressParams.cancelOnTouchOutside)
 
     var progressView = progressParams.progressView
 
@@ -49,14 +48,14 @@ internal class DownloadProgressDialog : DialogActivity() {
     }
 
     setContentView(progressView)
-    setupWindow(progressParams)
+
     if (sParams!!.downloadParams.useDownloadManager) {
       downloadId = intent.getLongExtra(DOWNLOAD_ID, -1)
       DownloadLog.logE("Download id :$downloadId")
       if (downloadId > 0L) {
         val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val query = DownloadManager.Query().setFilterById(downloadId)
-        progressParams.listener?.onStart()
+        progressParams.progressListener?.onStart()
         countDownTimer = DownloadCountDown(progressParams.progressTimeout) {
           lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -67,7 +66,7 @@ internal class DownloadProgressDialog : DialogActivity() {
         }.start()
       }
     } else {
-      progressParams.listener?.onStart()
+      progressParams.progressListener?.onStart()
       apkDownloader = FileDownloader(this, sParams!!, defaultProgress)
       apkDownloader!!.start()
     }
@@ -80,8 +79,10 @@ internal class DownloadProgressDialog : DialogActivity() {
     val cursor = downloadManager.query(query)
     if (!cursor.moveToFirst()) return
     val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-    val totalSizeBytes = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-    val bytesDownloadSoFar = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+    val totalSizeBytes = cursor
+        .getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+    val bytesDownloadSoFar = cursor
+        .getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
     var progress = bytesDownloadSoFar.toFloat() / totalSizeBytes * 100f
     if (progress < 0.0) progress = 0.0f
     DownloadLog.logI("$downloadId-->Download status:$status; progress:$progress")
@@ -94,54 +95,17 @@ internal class DownloadProgressDialog : DialogActivity() {
         countDownTimer?.cancel()
         val path = InstallUtil.queryFileByDownloadId(this, downloadId)
         withContext(Dispatchers.Main) {
-          progressParams.listener?.onFinished(path)
+          progressParams.progressListener?.onFinished(path)
         }
         finish()
       }
       else -> {
         withContext(Dispatchers.Main) {
           defaultProgress?.onProgress(progress)
-          progressParams.listener?.onProgress(progress)
+          progressParams.progressListener?.onProgress(progress)
         }
       }
     }
-  }
-
-  private fun setupWindow(progressParams: ProgressParams) {
-    window.decorView.setPadding(0, 0, 0, 0)
-
-    val lp = window.attributes
-
-    if (progressParams.width > 0) {
-      lp.width = progressParams.width
-    }
-    if (progressParams.height > 0) {
-      lp.height = progressParams.height
-    }
-
-    lp.windowAnimations = progressParams.windowAnim
-
-    if (progressParams.x > 0) {
-      lp.x = progressParams.x
-    }
-    if (progressParams.y > 0) {
-      lp.y = progressParams.y
-    }
-    lp.gravity = progressParams.gravity
-    lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
-    lp.dimAmount = progressParams.dimAmount
-    window.attributes = lp
-  }
-
-  override fun onBackPressed() {
-    if (sParams!!.progressParams.cancelAble) {
-      super.onBackPressed()
-    }
-  }
-
-  override fun finish() {
-    super.finish()
-    overridePendingTransition(0, 0)
   }
 
   override fun onDestroy() {
@@ -193,7 +157,6 @@ internal class DownloadProgressDialog : DialogActivity() {
     fun getProgressView(): View = contentView
 
     override fun onStart() {
-
     }
 
     override fun onProgress(progress: Float) {

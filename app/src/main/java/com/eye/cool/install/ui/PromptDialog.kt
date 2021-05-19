@@ -3,8 +3,8 @@ package com.eye.cool.install.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.WindowManager
 import com.eye.cool.install.params.PromptParams
+import com.eye.cool.install.params.WindowParams
 import com.eye.cool.install.support.complete
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -15,45 +15,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 internal class PromptDialog : DialogActivity(), PromptParams.IPromptListener {
 
+  override val windowParams: WindowParams? = promptParams?.window
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    setFinishOnTouchOutside(false)
-
     promptParams?.apply {
-      val view = prompt?.createView(this@PromptDialog, title, content, this@PromptDialog)
-      if (view != null) {
-        setContentView(view)
-        setupWindow(this)
+      prompt?.createView(
+          this@PromptDialog,
+          title,
+          content,
+          this@PromptDialog
+      )?.apply {
+        setContentView(this)
       }
     }
-  }
-
-  private fun setupWindow(params: PromptParams) {
-
-    window.decorView.setPadding(0, 0, 0, 0)
-
-    val lp = window.attributes
-
-    if (params.width > 0) {
-      lp.width = params.width
-    }
-    if (params.height > 0) {
-      lp.height = params.height
-    }
-
-    lp.windowAnimations = params.windowAnim
-
-    if (params.x > 0) {
-      lp.x = params.x
-    }
-    if (params.y > 0) {
-      lp.y = params.y
-    }
-    lp.gravity = params.gravity
-    lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
-    lp.dimAmount = params.dimAmount
-    window.attributes = lp
   }
 
   override fun onUpgrade() {

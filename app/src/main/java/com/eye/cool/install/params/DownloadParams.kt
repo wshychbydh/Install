@@ -4,20 +4,28 @@ import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.webkit.URLUtil
 import com.eye.cool.install.util.DownloadLog
 import java.io.File
 
 /**
  *Created by ycb on 2019/11/29 0029
  */
-class DownloadParams private constructor() {
+class DownloadParams private constructor(
+    internal val downloadUrl: String,
+    private var downloadPath: String?,
+    internal val useDownloadManager: Boolean,
+    internal val request: DownloadManager.Request?,
+    internal val forceDownload: Boolean,
+    internal val repeatDownload: Boolean,
+) {
 
-  internal var downloadUrl: String? = null
-  internal var downloadPath: String? = null
-  internal var useDownloadManager: Boolean = false
-  internal var request: DownloadManager.Request? = null
-  internal var forceDownload: Boolean = false
-  internal var repeatDownload: Boolean = false
+  companion object {
+    inline fun build(
+        downloadUrl: String,
+        block: Builder.() -> Unit
+    ) = Builder(downloadUrl).apply(block).build()
+  }
 
   internal fun createRequest(context: Context, isApk: Boolean) = try {
     val subPath = composeDownloadSubPath(context, isApk)
@@ -48,7 +56,7 @@ class DownloadParams private constructor() {
     val url = downloadUrl
 
     return if (isApk || url.isNullOrEmpty()) {
-      if (url?.endsWith(".apk") == true) {
+      if (url.endsWith(".apk")) {
         url.substring(url.lastIndexOf("/"), url.length)
       } else {
         val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
@@ -60,20 +68,21 @@ class DownloadParams private constructor() {
     }
   }
 
-  class Builder {
-
-    private val params = DownloadParams()
-
+  data class Builder(
+      var downloadUrl: String,
+      var downloadPath: String? = null,
+      var useDownloadManager: Boolean = false,
+      var request: DownloadManager.Request? = null,
+      var forceDownload: Boolean = false,
+      var repeatDownload: Boolean = false,
+  ) {
 
     /**
      * The download url of the apk to be downloaded
      *
      * @param [downloadUrl] The url must be valid , check by {@link URLUtil.isValidUrl()}
      */
-    fun downloadUrl(downloadUrl: String): Builder {
-      params.downloadUrl = downloadUrl
-      return this
-    }
+    fun downloadUrl(downloadUrl: String) = apply { this.downloadUrl = downloadUrl }
 
     /**
      * If you download using DownloadManager, you should provide a [request]
@@ -89,29 +98,22 @@ class DownloadParams private constructor() {
      * If it is a directory, it will be spliced with filename.
      *
      */
-    fun downloadPath(downloadPath: String): Builder {
-      params.downloadPath = downloadPath
-      return this
-    }
+    fun downloadPath(downloadPath: String) = apply { this.downloadPath = downloadPath }
 
     /**
-     * Forced to upgrade. The upgrade progress box displays within the application
+     * Forced to download. The upgrade progress box displays within the application
      *
-     * @param [forceUpdate] default false
+     * @param [forceDownload] default false
      */
-    fun forceUpdate(forceUpdate: Boolean): Builder {
-      params.forceDownload = forceUpdate
-      return this
-    }
+    fun forceDownload(forceDownload: Boolean) = apply { this.forceDownload = forceDownload }
 
     /**
      * Use DownloadManager to download, but sometimes there are problems, then you can set it to false
      *
      * @param [useDownloadManager] default true
      */
-    fun useDownloadManager(useDownloadManager: Boolean): Builder {
-      params.useDownloadManager = useDownloadManager
-      return this
+    fun useDownloadManager(useDownloadManager: Boolean) = apply {
+      this.useDownloadManager = useDownloadManager
     }
 
     /**
@@ -119,23 +121,29 @@ class DownloadParams private constructor() {
      *
      * @param [request]
      */
-    fun request(request: DownloadManager.Request): Builder {
-      params.request = request
-      return this
-    }
+    fun request(request: DownloadManager.Request) = apply { this.request = request }
 
     /**
      * If the downloaded file already exists, do you need to download it again
      *
      * @param [repeatDownload] re-download default false
      */
-    fun repeatDownload(repeatDownload: Boolean): Builder {
-      params.repeatDownload = repeatDownload
-      return this
-    }
+    fun repeatDownload(repeatDownload: Boolean) = apply { this.repeatDownload = repeatDownload }
 
     fun build(): DownloadParams {
-      return params
+      val url = downloadUrl
+      if (!URLUtil.isValidUrl(url)) {
+        throw IllegalArgumentException("DownloadUrl is invalid!")
+      }
+
+      return DownloadParams(
+          downloadUrl = downloadUrl,
+          downloadPath = downloadPath,
+          useDownloadManager = useDownloadManager,
+          request = request,
+          forceDownload = forceDownload,
+          repeatDownload = repeatDownload
+      )
     }
   }
 }

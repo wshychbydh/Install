@@ -31,11 +31,11 @@ internal class FileDownloader(
       download(downloadFile) { progress ->
         withContext(Dispatchers.Main) {
           defaultProgress?.onProgress(progress)
-          params.progressParams.listener?.onProgress(progress)
+          params.progressParams.progressListener?.onProgress(progress)
         }
       }
       defaultProgress?.onFinished(downloadFile.absolutePath)
-      params.progressParams.listener?.onFinished(downloadFile.absolutePath)
+      params.progressParams.progressListener?.onFinished(downloadFile.absolutePath)
       if (downloadFile.exists() && params.fileParams.isApk) {
         InstallUtil.installApk(activity, downloadFile)
       }

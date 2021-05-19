@@ -23,18 +23,18 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 class DownloadHelper {
 
-  private var context: Context
-  private var params: Params = Params.Builder().build()
+  private val context: Context
+  private val params: Params
 
-  constructor(context: Context, downloadUrl: String) {
-    this.context = context
-    params.downloadParams.downloadUrl = downloadUrl
-  }
+  constructor(
+      context: Context,
+      downloadUrl: String
+  ) : this(context, DownloadParams.Builder(downloadUrl).build())
 
-  constructor(context: Context, downloadParams: DownloadParams) {
-    this.context = context
-    this.params.downloadParams = downloadParams
-  }
+  constructor(
+      context: Context,
+      downloadParams: DownloadParams
+  ) : this(context, Params.Builder(downloadParams).build())
 
   constructor(context: Context, params: Params) {
     this.context = context
