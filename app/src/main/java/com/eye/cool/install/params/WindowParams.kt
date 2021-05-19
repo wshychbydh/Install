@@ -2,7 +2,6 @@ package com.eye.cool.install.params
 
 import android.content.DialogInterface
 import android.content.res.Resources
-import android.view.Gravity
 import android.view.WindowManager
 import androidx.annotation.StyleRes
 
@@ -18,7 +17,7 @@ class WindowParams private constructor(
     internal val x: Int?,
     internal val y: Int?,
 
-    val windowFlags: Int?,
+    val flags: Int?,
     @StyleRes
     internal val windowAnimations: Int?,
     internal val dimAmount: Float?,
@@ -52,7 +51,7 @@ class WindowParams private constructor(
       var x: Int? = null,
       var y: Int? = null,
 
-      var windowFlags: Int? = WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+      var flags: Int = WindowManager.LayoutParams.FLAG_DIM_BEHIND,
       @StyleRes
       var windowAnimations: Int? = null,
       var dimAmount: Float? = null,
@@ -74,19 +73,7 @@ class WindowParams private constructor(
   ) {
 
     /**
-     * Placement of window within the screen as per {@link Gravity}.  Both
-     * {@link Gravity#apply(int, int, int, android.graphics.Rect, int, int,
-     * android.graphics.Rect) Gravity.apply} and
-     * {@link Gravity#applyDisplay(int, android.graphics.Rect, android.graphics.Rect)
-     * Gravity.applyDisplay} are used during window layout, with this value
-     * given as the desired gravity.  For example you can specify
-     * {@link Gravity#DISPLAY_CLIP_HORIZONTAL Gravity.DISPLAY_CLIP_HORIZONTAL} and
-     * {@link Gravity#DISPLAY_CLIP_VERTICAL Gravity.DISPLAY_CLIP_VERTICAL} here
-     * to control the behavior of
-     * {@link Gravity#applyDisplay(int, android.graphics.Rect, android.graphics.Rect)
-     * Gravity.applyDisplay}.
-     *
-     * @see [Gravity]
+     * @see WindowManager.LayoutParams.gravity
      */
     fun gravity(gravity: Int) = apply { this.gravity = gravity }
 
@@ -94,7 +81,7 @@ class WindowParams private constructor(
      * Sets whether this dialog is dismissed when onBackPressed().
      * Only dismiss dialog, never stop task
      *
-     * @param [cancelAble] default false
+     * @param [cancelable] default false
      */
     fun cancelable(cancelable: Boolean) = apply { this.cancelable = cancelable }
 
@@ -109,94 +96,112 @@ class WindowParams private constructor(
     }
 
     /**
-     * This is the amount of dimming to apply.  Range is from 1.0 for completely opaque to 0.0 for no dim.
-     *
-     * @param [dimAmount] default 0.0
+     * @see WindowManager.LayoutParams.dimAmount
      */
     fun dimAmount(dimAmount: Float) = apply { this.dimAmount = dimAmount }
 
     /**
-     * A style resource defining the animations to use for this window.
-     * This must be a system resource; it can not be an application resource
-     * because the window manager does not have access to applications.
-     *
-     * @param [windowAnim] default none
+     * @see WindowManager.LayoutParams.windowAnimations
      */
-    fun windowAnim(windowAnim: Int) = apply { this.windowAnimations = windowAnim }
-
-    /**
-     * The size of the progress dialog
-     *
-     * @param [width] default match_parent, min_width 260dp
-     * @param [height] default min_height 80dp
-     */
-    fun size(width: Int, height: Int) = apply {
-      this.width = width
-      this.height = height
+    fun windowAnimations(windowAnimations: Int) = apply {
+      this.windowAnimations = windowAnimations
     }
 
     /**
-     * The location that the progress dialog will be shown
-     *
-     * @param [x]
-     * @param [y]
+     * @see WindowManager.LayoutParams.flags
      */
-    fun setCoordinate(x: Int, y: Int) = apply {
-      this.x = x
-      this.y = y
-    }
+    fun flags(flags: Int) = apply { this.flags = flags }
 
     /**
-     * Window flag
-     * @param [flags] @link{WindowManager.flags}, default FLAG_DIM_BEHIND
+     * @see WindowManager.LayoutParams.horizontalMargin
      */
-    fun windowFlags(flags: Int) = apply { this.windowFlags = flags }
-
     fun horizontalMargin(margin: Float) = apply { this.horizontalMargin = margin }
 
+    /**
+     * @see WindowManager.LayoutParams.verticalMargin
+     */
     fun verticalMargin(margin: Float) = apply { this.verticalMargin = margin }
 
+    /**
+     * @see WindowManager.LayoutParams.systemUiVisibility
+     */
     fun systemUiVisibility(visibility: Int) = apply { this.systemUiVisibility = visibility }
 
+    /**
+     * @see WindowManager.LayoutParams.softInputMode
+     */
     fun softInputMode(softInputMode: Int) = apply { this.softInputMode = softInputMode }
 
+    /**
+     *  @see WindowManager.LayoutParams.x
+     *  @see WindowManager.LayoutParams.y
+     */
     fun position(x: Int, y: Int) = apply {
       this.x = x
       this.y = y
     }
 
+    /**
+     *  @see WindowManager.LayoutParams.alpha
+     */
     fun alpha(alpha: Float) = apply { this.alpha = alpha }
 
+    /**
+     *  Width ratio of window and screen
+     *  @param [ratio] 0.0~1.0
+     */
     fun widthRatio(ratio: Float) = apply {
       if (ratio <= 0.0 && ratio > 1.0) throw IllegalArgumentException("Invalid ratio")
       val width = Resources.getSystem().displayMetrics.widthPixels
       this.width = (width * ratio).toInt()
     }
 
+    /**
+     *  Height ratio of window and screen
+     *  @param [ratio] 0.0~1.0
+     */
     fun heightRatio(ratio: Float) = apply {
       if (ratio <= 0.0 && ratio > 1.0) throw IllegalArgumentException("Invalid ratio")
       val height = Resources.getSystem().displayMetrics.heightPixels
       this.height = (height * ratio).toInt()
     }
 
+    /**
+     *  @see WindowManager.LayoutParams.width
+     *  @param [width] default match_parent, min_width 260dp
+     */
     fun width(width: Int) = apply { this.width = width }
 
+    /**
+     *  @see WindowManager.LayoutParams.height
+     *  @param [height] default min_height 80dp
+     */
     fun height(height: Int) = apply { this.height = height }
 
-    fun setWindowAnimations(@StyleRes anim: Int) = apply { this.windowAnimations = anim }
-
+    /**
+     *  Callback when window is showing
+     */
     fun onShowListener(listener: DialogInterface.OnShowListener) = apply {
       this.onShowListener = listener
     }
 
+    /**
+     *  Callback when window is dismissed
+     */
     fun onDismissListener(listener: DialogInterface.OnDismissListener) = apply {
       this.onDismissListener = listener
     }
 
+    /**
+     *  Callback when window is cancelled
+     */
     fun onCancelListener(listener: DialogInterface.OnCancelListener) = apply {
       this.onCancelListener = listener
     }
 
+    /**
+     * Sets the callback that will be called if a key is dispatched to the window.
+     */
     fun onKeyListener(listener: DialogInterface.OnKeyListener) = apply {
       this.onKeyListener = listener
     }
@@ -207,7 +212,7 @@ class WindowParams private constructor(
         gravity = gravity,
         x = x,
         y = y,
-        windowFlags = windowFlags,
+        flags = flags,
         windowAnimations = windowAnimations,
         dimAmount = dimAmount,
         alpha = alpha,

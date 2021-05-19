@@ -85,8 +85,8 @@ internal interface IWindowConfig {
       layoutParams.softInputMode = params.softInputMode!!
     }
 
-    if (params.windowFlags != null) {
-      layoutParams.flags = params.windowFlags
+    if (params.flags != null) {
+      layoutParams.flags = params.flags
     }
 
     return layoutParams

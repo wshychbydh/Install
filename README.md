@@ -68,12 +68,13 @@
    //窗体相关设置,可用于prompt和progress
    val windowParams = WindowParams.Builder()
         .position(x, y)                               //(可选) 显示的x,y坐标
-        .size(width, height)                          //(可选) 进度框大小，默认100%屏宽
+        .width(width)                                 //(可选) 宽度，默认屏幕宽度，最小260dp
+        .height(height)                               //(可选) 高度，默认80dp
         .cancelAble(cancelAble)                       //(可选) 是否可取消，但不会取消任务，默认false
         .cancelOnTouchOutside(cancelOnTouchOutside)   //(可选) 是否在点击区域外取消，不会取消任务，默认false
         .dimAmount(dimAmount)                         //(可选) 进度框出现时，背景灰度，默认0
         .gravity(gravity)                             //(可选) 对齐方式，默认Gravity.Center
-        .windowAnim(windowAnim)                       //(可选) 进度框window动画，默认无
+        .windowAnimations(windowAnim)                 //(可选) 进度框window动画，默认无
         .build()
 
    //kotlin构建: promptParams = PromptParams.build{...}（推荐） 
