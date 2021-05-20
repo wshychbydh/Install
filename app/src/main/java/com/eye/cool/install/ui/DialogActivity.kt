@@ -21,13 +21,14 @@ internal abstract class DialogActivity : AppCompatActivity(), DialogInterface, I
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    invasionStatusBar(this)
+    //invasionStatusBar(this)
 
     setFinishOnTouchOutside(windowParams?.canceledOnTouchOutside ?: false)
 
     windowParams?.apply {
       val lp = configLayoutParams(this, window)
       onWindowAttributesChanged(lp)
+      onShowListener?.onShow(this@DialogActivity)
     }
   }
 
