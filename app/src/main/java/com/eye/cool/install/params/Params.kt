@@ -2,7 +2,6 @@ package com.eye.cool.install.params
 
 import android.annotation.TargetApi
 import android.os.Build
-import android.webkit.URLUtil
 
 /**
  *Created by ycb on 2019/11/28 0028
@@ -123,7 +122,7 @@ class Params private constructor(
     )
   }
 
-  interface InstallPermissionInvoker {
+  fun interface InstallPermissionInvoker {
 
     /**
      * Installation permission invoker to request permissions.
@@ -133,7 +132,7 @@ class Params private constructor(
     fun request(invoker: (Boolean) -> Unit)
   }
 
-  interface PermissionInvoker {
+  fun interface PermissionInvoker {
 
     /**
      * Permission invoker to request [android.Manifest.permission.READ_EXTERNAL_STORAGE]
